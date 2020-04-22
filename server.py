@@ -1,64 +1,36 @@
+# coding: utf-8
+
 import socket
-import time
-import random
-
-import self as self
+import threading
 
 
-class Jeu():
+class ClientThread(threading.Thread):
 
-    def __init__(self):
-        self.joueur = []
-        self.roulette = list("BANQUEROUTE",100,200, 300,500,"CADEAU")
-        self.kdo = "une chaussette"
+    def __init__(self, ip, port, clientsocket):
+        threading.Thread.__init__(self)
+        self.ip = ip
+        self.port = port
+        self.clientsocket = clientsocket
+        print("[+] Nouveau thread pour %s %s" % (self.ip, self.port,))
 
-    def passer(self):
-        mesg = "pass"
-        return mesg
+    def run(self):
+        print("Connexion de %s %s" % (self.ip, self.port,))
 
-    def Actionroulette(self,joueur):
-        r = random.randint(0,len(self.roulette))
-        tirage = self.roulette[r]
-       if(type(tirage) == int):
-           joueur.argent += tirage
-        if (tirage == "BANQUEROUTE"):
-             self.passer()
-        if(tirage == "CADEAU"):
-            joueur.stock += self.kdo
+        r = self.clientsocket.recv(2048)
+        print("Ouverture du fichier: ", r, "...")
+        fp = open(r, 'rb')
+        self.clientsocket.send(fp.read())
+
+        print("Client déconnecté...")
 
 
-
-
-
-
-
-HEADERSIZE = 10
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((socket.gethostname(), 1243))
-s.listen(5)
+tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+tcpsock.bind(("", 1111))
 
 while True:
-    # now our endpoint knows about the OTHER endpoint.
-    clientsocket, address = s.accept()
-    print(f"Connection from {address} has been established.")
-
-    msg = "Welcome to the server!"
-    msg = f"{len(msg):<{HEADERSIZE}}"+msg
-
-    clientsocket.send(bytes(msg,"utf-8"))
-
-    while True:
-        time.sleep(3)
-        msg = f"The time is {time.time()}"
-        msg = f"{len(msg):<{HEADERSIZE}}"+msg
-
-        print(msg)
-
-        clientsocket.send(bytes(msg,"utf-8"))
-
-
-
-
-
-
+    tcpsock.listen(10)
+    print("En écoute...")
+    (clientsocket, (ip, port)) = tcpsock.accept()
+    newthread = ClientThread(ip, port, clientsocket)
+    newthread.start()
