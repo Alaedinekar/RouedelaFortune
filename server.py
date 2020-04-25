@@ -2,6 +2,7 @@
 
 import socket
 import threading
+lock = threading.Lock()
 
 from random import randint
 from time import sleep
@@ -76,13 +77,19 @@ class ClientThread(threading.Thread):
 
 
 tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-tcpsock.bind(("", 1111))
+
+try:
+    tcpsock.bind((socket.gethostname(), 1234))
+except socket.error:
+    print("La liaison du socket à l'adresse choisie a échoué.")
+    sys.exit()
+
+
 clients = []
 
 def i_manage_clients():    #Function to manage clients
     for client in clients:
-        client.send('Message to pass')
+        client.send('VOUS ETES BIEN CO'.encode('ascii'))
 
 while True:
     try:
@@ -91,14 +98,17 @@ while True:
         (clientsocket, (ip, port)) = tcpsock.accept()
         clients.append(clientsocket) ##on remplit la liste des clients
         newthread = ClientThread(ip, port, clientsocket)
+        i_manage_clients()
         newthread.start()
     except KeyboardInterrupt:
-        socket.close()
+        tcpsock.close()
 
 
 
 
     ###etape1 buzz avec un select
     ## un thread par joueur
+
+
 
 

@@ -44,7 +44,7 @@ class Joueur:
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("localhost", 1111))   ## pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
+s.connect((socket.gethostname(), 1234))   ## pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
 name = input("quel est votre nom:")
 j1 = Joueur(name)
 
@@ -79,4 +79,3 @@ if(r == "defaite"):
 if (r == "recap"):
     recap = s.recv(2048)
     print(recap)
-
