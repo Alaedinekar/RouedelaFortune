@@ -14,6 +14,8 @@ class Jeu():
     def __init__(self):
         self.listeJoueur = []
         self.roue = ['100', '200', '2000', 'Banqueroute']
+        self.phraseCourante = ''
+        self.phraseCachee = ''
 
     def afficherListe(self):
         for j in self.listeJoueur:
@@ -29,6 +31,7 @@ class Jeu():
         """Choisis une expression dans la liste"""
         f = open('enigmes/expressions.txt',mode='r',encoding='utf-8')
         laPhrase  = f.readlines()
+        self.phraseCourante = laPhrase[randint(0,len(laPhrase)-1)]
         return laPhrase[randint(0,len(laPhrase)-1)]
 
     def rapidite(self,str):
@@ -52,7 +55,18 @@ class Jeu():
                 newstr += '_'
             else:
                 newstr += c
+        self.phraseCachee = newstr
         return newstr
+
+    def updateCachee(self,laLettre):
+        nbr = 0
+        for i in range(len(self.phraseCourante))
+            if self.phraseCourante[i] == laLettre:
+                nbr++
+                self.phraseCachee[i] = laLettre
+        return nbr
+
+
 
 
 game =Jeu()
