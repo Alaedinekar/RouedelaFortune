@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import socket
+import sys
 import threading
 lock = threading.Lock()
 
@@ -60,9 +61,9 @@ class Jeu():
 
     def updateCachee(self,laLettre):
         nbr = 0
-        for i in range(len(self.phraseCourante))
+        for i in range(len(self.phraseCourante)):
             if self.phraseCourante[i] == laLettre:
-                nbr++
+                nbr+=1
                 self.phraseCachee[i] = laLettre
             else:
                 return 'Non pas de {} dans le mot !'.format(laLettre)
