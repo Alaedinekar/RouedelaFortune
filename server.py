@@ -64,6 +64,8 @@ class Jeu():
             if self.phraseCourante[i] == laLettre:
                 nbr++
                 self.phraseCachee[i] = laLettre
+            else:
+                return 'Non pas de {} dans le mot !'.format(laLettre)
         return nbr
 
 
