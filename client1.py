@@ -32,7 +32,7 @@ class Joueur:
            print("Eh oh! pas à nous ;-)")
            self.proposerconsonne()
 
-        return lettre
+        else :return lettre
 
     def proposerPhrase(self):
         phrase = input("Que proposez vous  comme reponse? :")

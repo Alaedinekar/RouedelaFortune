@@ -1,8 +1,11 @@
 import socket
 import sys
+import threading
 from random import randint
 from string import ascii_letters
 from time import sleep
+
+tlock = threading.Lock()
 
 class Jeu():
     def __init__(self):
@@ -70,18 +73,38 @@ except socket.error:
 
 
 clients = []
+shutdown = False
 
+def receiving(name,sock):
+    while not  shutdown:
+        try:
+            tlock.acquire()
+            while True:
+                data,addr = sock.recvfrom(1024)
+                print(str(data))
+        except:
+            pass
+        finally:
+            tlock.release()
 
 
 def i_manage_clients(clients):    #Function to manage clients
     for client in clients:
         tcpsock.send('VOUS ETES BIEN CO'.encode('ascii'))
 
+print("En écoute...")
+quitting = False
+while not quitting:
 
+        try:
+            data,addr = tcpsock.recvfrom(1024)
+            if "Quit" in str(data):
+                quitting = True
+            if addr not in clients:
+                clients.append(addr)
+        finally:
+            clientsocket, address = tcpsock.accept()
 
-while True:
-        clientsocket, address = tcpsock.accept()
-        print("En écoute...")
         print(f"le joueur {address} vient d'apparaitre")
         clients.append(clientsocket)
         id = clientsocket.recv(1024)
