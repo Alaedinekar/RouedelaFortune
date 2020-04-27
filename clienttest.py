@@ -49,7 +49,8 @@ j1 = Joueur("shrek")
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 name = socket.gethostname()
 s.connect((socket.gethostbyname(name), 1234))   # pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
-nam = input("quel est votre nom:")
+
+nam = input("quel est votre nom: ")
 s.send(bytes(nam,'utf-8'))
 
 t = s.recv(1024)

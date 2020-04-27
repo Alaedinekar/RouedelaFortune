@@ -93,58 +93,57 @@ def i_manage_clients(clients):    #Function to manage clients
         tcpsock.send('VOUS ETES BIEN CO'.encode('ascii'))
 
 print("En écoute...")
-quitting = False
-while not quitting:
+# quitting = False
+# while not quitting:
+#
+#         try:
+#             data,addr = tcpsock.recvfrom(1024)
+#             if "Quit" in str(data):
+#                 quitting = True
+#             if addr not in clients:
+#                 clients.append(addr)
+#         finally:
+clientsocket, address = tcpsock.accept()
 
-        try:
-            data,addr = tcpsock.recvfrom(1024)
-            if "Quit" in str(data):
-                quitting = True
-            if addr not in clients:
-                clients.append(addr)
-        finally:
-            clientsocket, address = tcpsock.accept()
+print(f"le joueur {address} vient d'apparaitre")
+clients.append(clientsocket)
+id = clientsocket.recv(1024)
+id = id.decode("utf-8")
+game.ajouterJoueur(id)
+for i in game.listeJoueur:
+    print("bienvenue a " + i)
 
-        print(f"le joueur {address} vient d'apparaitre")
-        clients.append(clientsocket)
-        id = clientsocket.recv(1024)
-        id = id.decode("utf-8")
-        game.ajouterJoueur(id)
-        for i in game.listeJoueur:
-            print("bienvenue a " + i)
+for i in clients:
+    i.send(bytes("salut a toi l'ami\n","utf-8"))
 
-        for i in clients:
-           i.send(bytes("salut a toi l'ami\n","utf-8"))
+while(len(clients) < 2):
+    #msg = clientsocket.recv(1024)
+    #print("cest au tour de " + msg.decode("utf-8"))
 
-        while(len(clients) < 2):
-            #msg = clientsocket.recv(1024)
-            #print("cest au tour de " + msg.decode("utf-8"))
-
-            clientsocket.send(bytes("choix","utf-8"))
-
-            msg = clientsocket.recv(1024)
-            print(msg.decode("utf-8"))
-
-            msg = clientsocket.recv(1024)
-            print(msg.decode("utf-8"))
-
-            msg = clientsocket.recv(1024)
-            print(msg.decode("utf-8"))
-
-        #data = tcpsock.recv(1024)
-        #print(data.decode("utf-8"))
+    clientsocket.send(bytes("choix","utf-8"))
 
 
 
+    msg = clientsocket.recv(1024)
+    print(msg.decode("utf-8"))
 
-    ##on remplit la liste des clients
-        #newthread = ClientThread(ip, port, clientsocket)
-        #i_manage_clients()
-       # newthread.start()
+    msg = clientsocket.recv(1024)
+    print(msg.decode("utf-8"))
+
+#data = tcpsock.recv(1024)
+#print(data.decode("utf-8"))
 
 
-    #except KeyboardInterrupt:
-      #  tcpsock.close()
 
-    #nom = tcpsock.recv(1024)
-    #print(nom)
+
+##on remplit la liste des clients
+#newthread = ClientThread(ip, port, clientsocket)
+#i_manage_clients()
+# newthread.start()
+
+
+#except KeyboardInterrupt:
+#  tcpsock.close()
+
+#nom = tcpsock.recv(1024)
+#print(nom)
