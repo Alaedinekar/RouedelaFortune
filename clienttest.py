@@ -74,6 +74,7 @@ if(r == 'choix'):  ## si cest l'evenement choix alors....
 
     print("quelle consonne choisissez vous?")
     s.send(bytes(j1.proposerconsonne(),"utf-8"))
+    ##verifier si la lettre est bonne , plus recevoir la phrase avec la lettre
     final = input("souhaitez vous proposez une reponse ? oui/non")
     if(final == 'oui'):
         s.send(bytes(j1.proposerPhrase(),"utf-8"))
