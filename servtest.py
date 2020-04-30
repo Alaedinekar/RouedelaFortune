@@ -1,3 +1,7 @@
+#LANCER LE SERVEUR AVEC UNE IP ET SON PORT
+#serv.py ip port
+#sinon le serv sera local
+
 import socket
 import sys
 import threading
@@ -11,6 +15,10 @@ class Jeu():
     def __init__(self):
         self.listeJoueur = []
         self.roue = ['100', '200', '2000', 'Banqueroute']
+        self.phraseCourante = ''
+        self.phraseCachee = ''
+        self.theme = ["Animaux","Profit","Gourmet","Bof Bof","difficulté"]
+        self.expression = ["Donner sa langue au chat","Pierre qui roule n'amasse pas mousse","Avoir les yeux plus gros que le ventre","Les doigts dans le nez","Ca ne casse pas trois pattes a un canard"]
 
     def afficherListe(self):
         for j in self.listeJoueur:
@@ -24,32 +32,54 @@ class Jeu():
 
     def choisirUneExpression(self):
         """Choisis une expression dans la liste"""
-        f = open('enigmes/expressions.txt',mode='r',encoding='utf-8')
-        laPhrase  = f.readlines()
-        return laPhrase[randint(0,len(laPhrase)-1)]
+        a = randint(0,len(self.theme)-1)
+        laPhrase  = self.expression[a]
+        self.phraseCourante = laPhrase
+        theme = self.theme[a]
+        self.expression.remove(laPhrase)
+        self.theme.remove(theme)
+        return (theme,laPhrase)
 
-    def rapidite(self,str):
-        pass
-        """Le premier qui trouve gagne !\nC'est simple !"""
-        print("Christophe : Je vous propose une épreuve de rapidité, quel est le thème Victoria ?")
-        source = str.split(',')
-        theme,expression = source[1][:-1],source[0][:-1]
-        sleep(1)
-        print("Victoria : {} !".format(theme))
-        expressionCachee = self.cacherString(expression)
-        sleep(1)
-        print(expressionCachee)
-        print("Christophe : Top !")
+    # def rapidite(self,str):
+    #     pass
+    #     """Le premier qui trouve gagne !\nC'est simple !"""
+    #     print("Christophe : Je vous propose une épreuve de rapidité, quel est le thème Victoria ?")
+    #     source = str.split(',')
+    #     theme,expression = source[1][:-1],source[0][:-1]
+    #     sleep(1)
+    #     print("Victoria : {} !".format(theme))
+    #     expressionCachee = self.cacherString(expression)
+    #     sleep(1)
+    #     print(expressionCachee)
+    #     print("Christophe : Top !")
 
 
     def cacherString(self,str):
         newstr = ''
         for c in str:
             if c in ascii_letters:
-                newstr += '_'
+                newstr += '-'
             else:
                 newstr += c
+        self.phraseCachee = newstr
         return newstr
+    def premierLettre(self):
+        i = randint(0,len(self.phraseCourante)-1)
+        if (self.phraseCourante[i]  in ascii_letters):
+            return self.phraseCourante[i]
+        else :
+            self.premierLettre()
+
+    def updateCachee(self, laLettre):
+        nbr = 0
+        for i in range(len(self.phraseCourante)-1):
+            if self.phraseCourante[i] == laLettre:
+                nbr += 1
+                self.phraseCachee[i] = laLettre
+            else:
+                return 'Non pas de {} dans le mot !'.format(laLettre)
+        return nbr
+
 
 
 game =Jeu()
@@ -59,10 +89,21 @@ game =Jeu()
 
 
 tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-name = socket.gethostname()
-port = 1234
-ip = socket.gethostbyname(name)
 
+try:
+    if sys.argv[1] != '/0' and sys.argv[2] != '/0':
+        ip = sys.argv[1]
+        port = sys.argv[2]
+    else:
+        name = socket.gethostname()
+        ip = socket.gethostbyname(name)
+        port = 1234
+except:
+    print("serveur par defaut local")
+
+name = socket.gethostname()
+ip = socket.gethostbyname(name)
+port = 1234
 try:
     tcpsock.bind((ip, port))
     tcpsock.listen(3)
@@ -73,77 +114,70 @@ except socket.error:
 
 
 clients = []
-shutdown = False
-
-def receiving(name,sock):
-    while not  shutdown:
-        try:
-            tlock.acquire()
-            while True:
-                data,addr = sock.recvfrom(1024)
-                print(str(data))
-        except:
-            pass
-        finally:
-            tlock.release()
 
 
-def i_manage_clients(clients):    #Function to manage clients
-    for client in clients:
-        tcpsock.send('VOUS ETES BIEN CO'.encode('ascii'))
 
 print("En écoute...")
-# quitting = False
-# while not quitting:
-#
-#         try:
-#             data,addr = tcpsock.recvfrom(1024)
-#             if "Quit" in str(data):
-#                 quitting = True
-#             if addr not in clients:
-#                 clients.append(addr)
-#         finally:
+
 clientsocket, address = tcpsock.accept()
 
 print(f"le joueur {address} vient d'apparaitre")
-clients.append(clientsocket)
-id = clientsocket.recv(1024)
-id = id.decode("utf-8")
-game.ajouterJoueur(id)
-for i in game.listeJoueur:
-    print("bienvenue a " + i)
+clients.append((clientsocket,address))
 
-for i in clients:
+
+list_client = [k for k,_ in clients]
+
+for i in list_client:
     i.send(bytes("salut a toi l'ami\n","utf-8"))
-
-while(len(clients) < 2):
-    #msg = clientsocket.recv(1024)
-    #print("cest au tour de " + msg.decode("utf-8"))
-
-    clientsocket.send(bytes("choix","utf-8"))
+    print(i)
 
 
 
-    msg = clientsocket.recv(1024)
-    print(msg.decode("utf-8"))
+def startManche():
+    msg = "nous vous donnons une lettre\t"
+    c = game.premierLettre()
+    game.updateCachee(c)
+    for i in list_client:
 
-    msg = clientsocket.recv(1024)
-    print(msg.decode("utf-8"))
+        i.send(bytes(msg ,'utf-8'))
+        i.send(bytes(c + "\n", 'utf-8'))
+        i.send(bytes(game.phraseCachee, 'utf-8'))
 
-#data = tcpsock.recv(1024)
-#print(data.decode("utf-8"))
+cptManche = 0
+
+def debutmanche(cptManche):
+    cptManche += 1
+    sleep(6)
+    for i in list_client:
+        i.send(bytes(str(cptManche)+ " manche \nVoici le theme et la phrase a decouvrir :\n", "utf-8"))
+        (theme,phrase) = game.choisirUneExpression()
+        game.cacherString(phrase)
+        i.send(bytes("le theme est : " + theme,"utf-8"))
+        i.send(bytes("\nla phrase est : " + game.phraseCachee,"utf-8"))
+        startManche()
+
+debutmanche(cptManche)
+
+def choix(cl) :
+    roulette = game.tournerLaRoue()
+    cl.send(bytes(roulette,"utf-8"))
+    if (roulette != "banqueroute"):
+        cl.send(bytes("choisissez votre lettre"))
+        cl.send(bytes("choix","utf-8"))
+        sleep(3)
+        cl.recvfrom(1024,)
 
 
 
 
-##on remplit la liste des clients
-#newthread = ClientThread(ip, port, clientsocket)
-#i_manage_clients()
-# newthread.start()
+while True:
+    debutmanche(cptManche)
 
 
-#except KeyboardInterrupt:
-#  tcpsock.close()
 
-#nom = tcpsock.recv(1024)
-#print(nom)
+
+
+
+
+
+

@@ -59,15 +59,7 @@ class Jeu():
         self.phraseCachee = newstr
         return newstr
 
-    def updateCachee(self,laLettre):
-        nbr = 0
-        for i in range(len(self.phraseCourante)):
-            if self.phraseCourante[i] == laLettre:
-                nbr+=1
-                self.phraseCachee[i] = laLettre
-            else:
-                return 'Non pas de {} dans le mot !'.format(laLettre)
-        return nbr
+
 
 
 

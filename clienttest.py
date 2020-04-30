@@ -1,4 +1,6 @@
 import socket
+import threading
+import time
 
 voyelle = ['a','e','i','o','u','y']
 consonne = ['b','c','d','f','g','h''j','k','l','m','n','p','q','r','s','t','v','w','x','z']
@@ -52,33 +54,46 @@ s.connect((socket.gethostbyname(name), 1234))   # pour plus tard on proposera de
 
 nam = input("quel est votre nom: ")
 s.send(bytes(nam,'utf-8'))
+def debut():
+    bienvenu = s.recv(1024)
+    bienvenu = bienvenu.decode('utf-8')
+    print(bienvenu + "\n")
+    them = s.recv(1024)
+    them = them.decode('utf-8')
+    print(them )
+    phrase = s.recv(1024)
+    phrase = phrase.decode('utf-8')
+    print(phrase + "\n")
 
-t = s.recv(1024)
-t = t.decode('utf-8')
-print(t)
+    phrase2 = s.recv(1024)
+    phrase2 = phrase2.decode('utf-8')
+    print(phrase2 + "\n")
 
-r = s.recv(1024)
-r = r.decode('utf-8')
-print(r)
+    phrase2 = s.recv(1024)
+    phrase2 = phrase2.decode('utf-8')
+    print(phrase2 + "\n")
 
-
-if(r == 'choix'):  ## si cest l'evenement choix alors....
-
-    res = input("souhaitez vous acheter une voyelle :(oui/non)")
-    if (res== 'oui'):
-        if(j1.canbuyVoyelle()):
-            s.send(bytes(j1.proposervoyelle(),"utf-8"))
-        else:
-            print("pas assez d'argent")
-
-
-    print("quelle consonne choisissez vous?")
-    s.send(bytes(j1.proposerconsonne(),"utf-8"))
-    ##verifier si la lettre est bonne , plus recevoir la phrase avec la lettre
-    final = input("souhaitez vous proposez une reponse ? oui/non")
-    if(final == 'oui'):
-        s.send(bytes(j1.proposerPhrase(),"utf-8"))
+debut()
 
 
-#r = s.recv(1024) ## on recoit du serveur l'evenement
+
+
+
+
+def reponseClient(r):
+    if (r == 'choix'):  ## si cest l'evenement choix alors....
+
+        res = input("souhaitez vous acheter une voyelle :(oui/non)")
+        if (res == 'oui'):
+            if (j1.canbuyVoyelle()):
+                s.send(bytes(j1.proposervoyelle(), "utf-8"))
+            else:
+                print("pas assez d'argent")
+
+        print("quelle consonne choisissez vous?")
+        s.send(bytes(j1.proposerconsonne(), "utf-8"))
+        ##verifier si la lettre est bonne , plus recevoir la phrase avec la lettre
+        final = input("souhaitez vous proposez une reponse ? oui/non")
+        if (final == 'oui'):
+            s.send(bytes(j1.proposerPhrase(), "utf-8"))
 
