@@ -81,15 +81,50 @@ class Jeu():
         return nbr
 
 
+def startManche():
+    msg = "Nous vous donnons une lettre\t"
+    c = game.premierLettre()
+    game.updateCachee(c)
+    for i in list_client:
+
+        i.send(bytes(msg ,'utf-8'))
+        i.send(bytes(c, 'utf-8'))
+        i.send(bytes(game.phraseCachee, 'utf-8'))
+
+
+
+def debutmanche(cptManche):
+    cptManche += 1
+    sleep(6)
+    for i in list_client:
+        i.send(bytes(str(cptManche)+ " manche \nVoici le theme et la phrase a decouvrir :\n", "utf-8"))
+        (theme,phrase) = game.choisirUneExpression()
+        game.cacherString(phrase)
+        i.send(bytes("Le theme est : " + theme,"utf-8"))
+        i.send(bytes("\nLa phrase est : " + game.phraseCachee + "\n","utf-8"))
+        startManche()
+
+
+
+def choix(cl) :
+    roulette = game.tournerLaRoue()
+    cl.send(bytes(roulette,"utf-8"))
+    if (roulette != "banqueroute"):
+        cl.send(bytes("choisissez votre lettre"))
+        cl.send(bytes("choix","utf-8"))
+        sleep(3)
+        cl.recvfrom(1024,)
+
+
+
+#####################################################
+# --------------- DEBUT DE LA PARTIE ---------------#
+#####################################################
 
 game =Jeu()
-
-
-
-
-
 tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+# Parametres de connexion serveur
 try:
     if sys.argv[1] != '/0' and sys.argv[2] != '/0':
         ip = sys.argv[1]
@@ -115,59 +150,22 @@ except socket.error:
 
 clients = []
 
-
-
-print("En écoute...")
+print("[*] En écoute...")
 
 clientsocket, address = tcpsock.accept()
 
-print(f"le joueur {address} vient d'apparaitre")
+print(f"[+] Le joueur {address} vient d'apparaitre")
 clients.append((clientsocket,address))
 
 
 list_client = [k for k,_ in clients]
 
 for i in list_client:
-    i.send(bytes("salut a toi l'ami\n","utf-8"))
-    print(i)
-
-
-
-def startManche():
-    msg = "nous vous donnons une lettre\t"
-    c = game.premierLettre()
-    game.updateCachee(c)
-    for i in list_client:
-
-        i.send(bytes(msg ,'utf-8'))
-        i.send(bytes(c + "\n", 'utf-8'))
-        i.send(bytes(game.phraseCachee, 'utf-8'))
+    i.send(bytes("Salut a toi l'ami\n","utf-8"))
+    # print(i)
 
 cptManche = 0
-
-def debutmanche(cptManche):
-    cptManche += 1
-    sleep(6)
-    for i in list_client:
-        i.send(bytes(str(cptManche)+ " manche \nVoici le theme et la phrase a decouvrir :\n", "utf-8"))
-        (theme,phrase) = game.choisirUneExpression()
-        game.cacherString(phrase)
-        i.send(bytes("le theme est : " + theme,"utf-8"))
-        i.send(bytes("\nla phrase est : " + game.phraseCachee,"utf-8"))
-        startManche()
-
 debutmanche(cptManche)
-
-def choix(cl) :
-    roulette = game.tournerLaRoue()
-    cl.send(bytes(roulette,"utf-8"))
-    if (roulette != "banqueroute"):
-        cl.send(bytes("choisissez votre lettre"))
-        cl.send(bytes("choix","utf-8"))
-        sleep(3)
-        cl.recvfrom(1024,)
-
-
 
 
 while True:
