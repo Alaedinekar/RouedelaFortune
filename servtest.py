@@ -116,7 +116,7 @@ def choix(cl) :
         sleep(3)
         res = cl.recvfrom(1024)
         print("Affichage du choix : ")
-        print(res) # Ca affiche le nom du joueur et nom pas la lettre...
+        print(res) # Affiche la lettre reçu
        
 
 
@@ -163,6 +163,11 @@ clients.append((clientsocket,address))
 
 
 list_client = [k for k,_ in clients]
+
+# Attente de la réponse des clients et affiche leurs nom
+for i in list_client:
+    res = i.recvfrom(1024)
+    print(res)
 
 for i in list_client:
     i.send(bytes("Salut a toi l'ami\n","utf-8"))
