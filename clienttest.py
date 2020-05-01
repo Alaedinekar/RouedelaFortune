@@ -29,7 +29,7 @@ class Joueur:
 
 
     def proposerconsonne(self):
-        lettre = input("choisir votre consonne >>")
+        lettre = input("Choisir votre consonne >>  ")
         lettre = lettre.lower()
         if lettre not in consonne:
            print("Eh oh! pas à nous ;-)")
@@ -44,16 +44,7 @@ class Joueur:
 
 
 
-j1 = Joueur("shrek")
 
-
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-name = socket.gethostname()
-s.connect((socket.gethostbyname(name), 1234))   # pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
-
-nam = input("quel est votre nom: ")
-s.send(bytes(nam,'utf-8'))
 def debut():
     bienvenu = s.recv(1024)
     bienvenu = bienvenu.decode('utf-8')
@@ -73,27 +64,42 @@ def debut():
     phrase2 = phrase2.decode('utf-8')
     print(phrase2 + "\n")
 
-debut()
-
-
-
-
-
 
 def reponseClient(r):
     if (r == 'choix'):  ## si cest l'evenement choix alors....
 
-        res = input("souhaitez vous acheter une voyelle :(oui/non)")
+        res = input("> Souhaitez vous acheter une voyelle :(oui/non) \n")
         if (res == 'oui'):
             if (j1.canbuyVoyelle()):
                 s.send(bytes(j1.proposervoyelle(), "utf-8"))
             else:
                 print("pas assez d'argent")
 
-        print("quelle consonne choisissez vous?")
-        s.send(bytes(j1.proposerconsonne(), "utf-8"))
+        print("> Quelle consonne choisissez vous?")
+        lettre = j1.proposerconsonne()
+        print("Vous avez choisi la lettre"+lettre)
+        s.send(bytes(lettre, "utf-8"))
+
         ##verifier si la lettre est bonne , plus recevoir la phrase avec la lettre
-        final = input("souhaitez vous proposez une reponse ? oui/non")
+        final = input("> Souhaitez vous proposez une reponse ? oui/non \n")
         if (final == 'oui'):
             s.send(bytes(j1.proposerPhrase(), "utf-8"))
 
+
+
+#####################################################
+# --------------- DEBUT DE LA PARTIE ---------------#
+#####################################################
+
+
+j1 = Joueur("shrek")
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+name = socket.gethostname()
+s.connect((socket.gethostbyname(name), 1234))   # pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
+
+nam = input("quel est votre nom: ")
+s.send(bytes(nam,'utf-8'))
+debut()
+choix = s.recvfrom(1024)
+reponseClient("choix")

@@ -82,14 +82,14 @@ class Jeu():
 
 
 def startManche():
-    msg = "Nous vous donnons une lettre\t"
+    msg = "Nous vous donnons une lettre \t"
     c = game.premierLettre()
     game.updateCachee(c)
     for i in list_client:
 
         i.send(bytes(msg ,'utf-8'))
-        i.send(bytes(c, 'utf-8'))
-        i.send(bytes(game.phraseCachee, 'utf-8'))
+        i.send(bytes(c+"\n", 'utf-8'))
+        i.send(bytes(game.phraseCachee+"\n", 'utf-8'))
 
 
 
@@ -108,12 +108,16 @@ def debutmanche(cptManche):
 
 def choix(cl) :
     roulette = game.tournerLaRoue()
+    cl.send(bytes("> La roue tourne... : ","utf-8"))
     cl.send(bytes(roulette,"utf-8"))
     if (roulette != "banqueroute"):
-        cl.send(bytes("choisissez votre lettre"))
-        cl.send(bytes("choix","utf-8"))
+        cl.send(bytes("\n > Choisissez votre lettre \n","utf-8"))
+        cl.send(bytes("Votre choix : ","utf-8"))
         sleep(3)
-        cl.recvfrom(1024,)
+        res = cl.recvfrom(1024)
+        print("Affichage du choix : ")
+        print(res) # Ca affiche le nom du joueur et nom pas la lettre...
+       
 
 
 
@@ -166,6 +170,7 @@ for i in list_client:
 
 cptManche = 0
 debutmanche(cptManche)
+choix(list_client[0])
 
 
 while True:
