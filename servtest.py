@@ -88,7 +88,7 @@ def startManche():
     for i in list_client:
 
         i.send(bytes(msg ,'utf-8'))
-        i.send(bytes(c+"\n", 'utf-8'))
+        i.send(bytes(c, 'utf-8'))
         i.send(bytes(game.phraseCachee+"\n", 'utf-8'))
 
 
@@ -109,14 +109,20 @@ def debutmanche(cptManche):
 def choix(cl) :
     roulette = game.tournerLaRoue()
     cl.send(bytes("> La roue tourne... : ","utf-8"))
+    sleep(1)
     cl.send(bytes(roulette,"utf-8"))
+    sleep(1)
     if (roulette != "banqueroute"):
         cl.send(bytes("\n > Choisissez votre lettre \n","utf-8"))
+        sleep(1)
         cl.send(bytes("Votre choix : ","utf-8"))
         sleep(3)
-        res = cl.recvfrom(1024)
-        print("Affichage du choix : ")
-        print(res) # Affiche la lettre reçu
+        print("[*] Attente choix du client....")
+        res = cl.recv(1024)
+        res = res.decode('utf-8')
+        print("[*] Choix du client : "+res[0])
+        return res[0]
+
        
 
 
@@ -138,7 +144,7 @@ try:
         ip = socket.gethostbyname(name)
         port = 1234
 except:
-    print("serveur par defaut local")
+    print("Serveur par defaut local")
 
 name = socket.gethostname()
 ip = socket.gethostbyname(name)
@@ -175,7 +181,8 @@ for i in list_client:
 
 cptManche = 0
 debutmanche(cptManche)
-choix(list_client[0])
+lettre = choix(list_client[0])
+
 
 
 while True:

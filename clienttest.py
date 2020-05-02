@@ -67,7 +67,6 @@ def debut():
 
 def reponseClient(r):
     if (r == 'choix'):  ## si cest l'evenement choix alors....
-
         res = input("> Souhaitez vous acheter une voyelle :(oui/non) \n")
         if (res == 'oui'):
             if (j1.canbuyVoyelle()):
@@ -77,7 +76,7 @@ def reponseClient(r):
 
         print("> Quelle consonne choisissez vous?")
         lettre = j1.proposerconsonne()
-        print("Vous avez choisi la lettre"+lettre)
+        print("Vous avez choisi la lettre : "+lettre)
         s.send(bytes(lettre, "utf-8"))
 
         ##verifier si la lettre est bonne , plus recevoir la phrase avec la lettre
@@ -101,5 +100,4 @@ s.connect((socket.gethostbyname(name), 1234))   # pour plus tard on proposera de
 nam = input("quel est votre nom: ")
 s.send(bytes(nam,'utf-8'))
 debut()
-choix = s.recvfrom(1024)
-reponseClient("choix")
+reponseClient('choix')
