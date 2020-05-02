@@ -9,6 +9,7 @@ from random import randint
 from string import ascii_letters
 from time import sleep
 
+
 tlock = threading.Lock()
 
 class Jeu():
@@ -58,11 +59,12 @@ class Jeu():
         newstr = ''
         for c in str:
             if c in ascii_letters:
-                newstr += '-'
+                newstr += '_'
             else:
                 newstr += c
         self.phraseCachee = newstr
         return newstr
+
     def premierLettre(self):
         i = randint(0,len(self.phraseCourante)-1)
         if (self.phraseCourante[i]  in ascii_letters):
@@ -71,25 +73,41 @@ class Jeu():
             self.premierLettre()
 
     def updateCachee(self, laLettre):
-        nbr = 0
+        emplacement = []
+        nbr = 1
+        mot_list = list(game.phraseCachee)
         for i in range(len(self.phraseCourante)-1):
             if self.phraseCourante[i] == laLettre:
-                nbr += 1
-                self.phraseCachee[i] = laLettre
+                emplacement.append(nbr)
+                mot_list[i] = laLettre
+                game.phraseCachee = ''.join(mot_list)
+                # game.phraseCachee[nbr-1] = laLettre
             else:
-                return 'Non pas de {} dans le mot !'.format(laLettre)
-        return nbr
+                nbr = nbr + 1
+
+        if len(emplacement) > 0:
+            print("\033[92m[*]\033[0m Le client à trouvé "+ str(len(emplacement))+" lettre(s)" )
+            print(game.phraseCachee)
+
+            return 'Bravo ! {}  lettre trouvees'.format(len(emplacement))   
+        else:
+            return 'Non pas de {} dans le mot !'.format(laLettre)
+        # return nbr
+
+    
 
 
 def startManche():
-    msg = "Nous vous donnons une lettre \t"
+    msg = "Nous vous donnons une lettre "
     c = game.premierLettre()
     game.updateCachee(c)
+    msg += c
+    sleep(3)
     for i in list_client:
-
-        i.send(bytes(msg ,'utf-8'))
-        i.send(bytes(c, 'utf-8'))
-        i.send(bytes(game.phraseCachee+"\n", 'utf-8'))
+        i.send(bytes(msg  ,'utf-8'))
+        sleep(1)
+        i.send(bytes(game.phraseCachee, 'utf-8'))
+        sleep(1)
 
 
 
@@ -97,30 +115,32 @@ def debutmanche(cptManche):
     cptManche += 1
     sleep(6)
     for i in list_client:
-        i.send(bytes(str(cptManche)+ " manche \nVoici le theme et la phrase a decouvrir :\n", "utf-8"))
+        i.send(bytes("======================== \n \t"+str(cptManche)+ " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
         (theme,phrase) = game.choisirUneExpression()
         game.cacherString(phrase)
-        i.send(bytes("Le theme est : " + theme,"utf-8"))
-        i.send(bytes("\nLa phrase est : " + game.phraseCachee + "\n","utf-8"))
+        i.send(bytes("Le theme est : \033[95m " + theme + "\033[0m","utf-8"))
+        sleep(1)
+        i.send(bytes("\nLa phrase est : \033[95m " + game.phraseCachee + "\033[0m\n","utf-8"))
         startManche()
+        sleep(1)
+
 
 
 
 def choix(cl) :
     roulette = game.tournerLaRoue()
-    cl.send(bytes("> La roue tourne... : ","utf-8"))
+    msg = "> La roue tourne... : " +roulette
+    cl.send(bytes(msg,"utf-8"))
     sleep(1)
     cl.send(bytes(roulette,"utf-8"))
     sleep(1)
     if (roulette != "banqueroute"):
         cl.send(bytes("\n > Choisissez votre lettre \n","utf-8"))
         sleep(1)
-        cl.send(bytes("Votre choix : ","utf-8"))
-        sleep(3)
-        print("[*] Attente choix du client....")
+        print("\033[94m[*]\033[0m Attente choix du client....")
         res = cl.recv(1024)
         res = res.decode('utf-8')
-        print("[*] Choix du client : "+res[0])
+        print("\033[94m[*]\033[0m Choix du client : "+res[0])
         return res[0]
 
        
@@ -144,9 +164,10 @@ try:
         ip = socket.gethostbyname(name)
         port = 1234
 except:
-    print("Serveur par defaut local")
+    print("serveur par defaut local")
 
-name = socket.gethostname()
+# name = socket.gethostname()
+name = 'localhost'
 ip = socket.gethostbyname(name)
 port = 1234
 try:
@@ -160,11 +181,11 @@ except socket.error:
 
 clients = []
 
-print("[*] En écoute...")
+print("\033[93m[*] En écoute... \033[0m")
 
 clientsocket, address = tcpsock.accept()
 
-print(f"[+] Le joueur {address} vient d'apparaitre")
+print(f"\033[93m[+] Le joueur {address} vient d'apparaitre \033[0m")
 clients.append((clientsocket,address))
 
 
@@ -173,7 +194,7 @@ list_client = [k for k,_ in clients]
 # Attente de la réponse des clients et affiche leurs nom
 for i in list_client:
     res = i.recvfrom(1024)
-    print(res)
+    print(res[0])
 
 for i in list_client:
     i.send(bytes("Salut a toi l'ami\n","utf-8"))
@@ -182,6 +203,13 @@ for i in list_client:
 cptManche = 0
 debutmanche(cptManche)
 lettre = choix(list_client[0])
+rep = game.updateCachee(lettre)
+list_client[0].send(bytes(rep,"utf-8"))
+sleep(1)
+list_client[0].send(bytes(game.phraseCachee,"utf-8"))
+
+# res = list_client[0].recv(1024).decode("utf-8")
+
 
 
 
