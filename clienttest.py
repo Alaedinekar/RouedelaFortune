@@ -3,7 +3,7 @@ import threading
 import time
 
 voyelle = ['a','e','i','o','u','y']
-consonne = ['b','c','d','f','g','h''j','k','l','m','n','p','q','r','s','t','v','w','x','z']
+consonne = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
 class Joueur:
 
     def __init__(self,nom):

@@ -16,6 +16,7 @@ class Jeu():
     def __init__(self):
         self.listeJoueur = []
         self.roue = ['100', '200', '2000', 'Banqueroute']
+        self.ValeurRoue = ''
         self.phraseCourante = ''
         self.phraseCachee = ''
         self.theme = ["Animaux","Profit","Gourmet","Bof Bof","difficulté"]
@@ -29,6 +30,7 @@ class Jeu():
     def tournerLaRoue(self):
         """Tourne la roue à votre place, vous faites pas mal !"""
         lacase = randint(0,len(self.roue)-1)
+        self.ValeurRoue =  self.roue[lacase]
         return self.roue[lacase]
 
     def choisirUneExpression(self):
@@ -101,8 +103,7 @@ class Jeu():
             print("Mauvaise reponse")
             return False;
 
-
-    
+   
 
 
 def startManche():
@@ -126,6 +127,7 @@ def debutmanche(cptManche):
     for i in list_client:
         i.send(bytes("======================== \n \t"+str(cptManche)+ " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
         (theme,phrase) = game.choisirUneExpression()
+
         game.cacherString(phrase)
         i.send(bytes("Le theme est : \033[95m " + theme + "\033[0m","utf-8"))
         sleep(1)
@@ -224,8 +226,9 @@ if (res == "oui"):
     else:
         list_client[0].send(bytes("Mauvaise reponse","utf-8"))
 
-print("Fin")
+
+# res = list_client[0].recv(1024).decode("utf-8")
 
 while True:
-#    debutmanche(cptManche)
+    debutmanche(cptManche)
 
