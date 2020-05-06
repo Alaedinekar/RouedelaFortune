@@ -93,6 +93,14 @@ class Jeu():
         else:
             return 'Non pas de {} dans le mot !'.format(laLettre)
         # return nbr
+    def checkPhrase(self,str):
+        if self.phraseCourante==str:
+            print("Bonne reponse")
+            return True;
+        else:
+            print("Mauvaise reponse")
+            return False;
+
 
     
 
@@ -108,6 +116,7 @@ def startManche():
         sleep(1)
         i.send(bytes(game.phraseCachee, 'utf-8'))
         sleep(1)
+        
 
 
 
@@ -207,20 +216,16 @@ rep = game.updateCachee(lettre)
 list_client[0].send(bytes(rep,"utf-8"))
 sleep(1)
 list_client[0].send(bytes(game.phraseCachee,"utf-8"))
+res = list_client[0].recv(1024).decode("utf-8")
+if (res == "oui"):
+    print("Le Joueur donne une phrase\t")
+    if game.checkPhrase(list_client[0].recv(1024).decode("utf-8")):
+        list_client[0].send(bytes("Bonne Reponse, la phrase est :\t"+game.phraseCourante,"utf-8"))
+    else:
+        list_client[0].send(bytes("Mauvaise reponse","utf-8"))
 
-# res = list_client[0].recv(1024).decode("utf-8")
-
-
-
+print("Fin")
 
 while True:
-    debutmanche(cptManche)
-
-
-
-
-
-
-
-
+#    debutmanche(cptManche)
 

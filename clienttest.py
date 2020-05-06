@@ -109,7 +109,9 @@ def reponseClient(r):
         ##verifier si la lettre est bonne , plus recevoir la phrase avec la lettre
         final = input("> Souhaitez vous proposez une reponse ? oui/non \n")
         if (final == 'oui'):
+            s.send(bytes("oui","utf-8"))
             s.send(bytes(j1.proposerPhrase(), "utf-8"))
+            print(s.recvfrom(1024)[0]);
 
 
 
