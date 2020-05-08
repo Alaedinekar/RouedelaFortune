@@ -91,32 +91,31 @@ class Jeu():
             print("\033[92m[*]\033[0m Le client à trouvé "+ str(len(emplacement))+" lettre(s)" )
             print(game.phraseCachee)
 
-            return 'Bravo ! {}  lettre trouvees'.format(len(emplacement))   
+            return len(emplacement)
         else:
-            return 'Non pas de {} dans le mot !'.format(laLettre)
+            return 0
         # return nbr
     def checkPhrase(self,str):
         if self.phraseCourante==str:
             print("Bonne reponse")
-            return True;
+            return True
         else:
             print("Mauvaise reponse")
-            return False;
-
-   
+            return False
 
 
-def startManche():
+
+
+def startManche(i):
     msg = "Nous vous donnons une lettre "
     c = game.premierLettre()
     game.updateCachee(c)
     msg += c
     sleep(3)
-    for i in list_client:
-        i.send(bytes(msg  ,'utf-8'))
-        sleep(1)
-        i.send(bytes(game.phraseCachee, 'utf-8'))
-        sleep(1)
+    i.send(bytes(msg  ,'utf-8'))
+    sleep(1)
+    i.send(bytes(game.phraseCachee, 'utf-8'))
+    sleep(1)
         
 
 
@@ -124,37 +123,72 @@ def startManche():
 def debutmanche(cptManche):
     cptManche += 1
     sleep(6)
+
     for i in list_client:
-        i.send(bytes("======================== \n \t"+str(cptManche)+ " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
-        (theme,phrase) = game.choisirUneExpression()
+        #with tlock:
 
-        game.cacherString(phrase)
-        i.send(bytes("Le theme est : \033[95m " + theme + "\033[0m","utf-8"))
-        sleep(1)
-        i.send(bytes("\nLa phrase est : \033[95m " + game.phraseCachee + "\033[0m\n","utf-8"))
-        startManche()
-        sleep(1)
+                i.send(bytes("======================== \n \t"+str(cptManche)+ " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
+                (theme,phrase) = game.choisirUneExpression()
+                game.cacherString(phrase)
+                i.send(bytes("Le theme est : \033[95m " + theme + "\033[0m","utf-8"))
+                sleep(1)
+                i.send(bytes("\nLa phrase est : \033[95m " + game.phraseCachee + "\033[0m\n","utf-8"))
+                startManche(i)
+                sleep(1)
 
+def envoyerCache(cl):
+    cl.send(bytes(game.phraseCachee,"utf-8"))
+    sleep(0.3)
 
 
 
 def choix(cl) :
-    roulette = game.tournerLaRoue()
-    msg = "> La roue tourne... : " +roulette
-    cl.send(bytes(msg,"utf-8"))
-    sleep(1)
-    cl.send(bytes(roulette,"utf-8"))
-    sleep(1)
-    if (roulette != "banqueroute"):
-        cl.send(bytes("\n > Choisissez votre lettre \n","utf-8"))
-        sleep(1)
-        print("\033[94m[*]\033[0m Attente choix du client....")
-        res = cl.recv(1024)
-        res = res.decode('utf-8')
-        print("\033[94m[*]\033[0m Choix du client : "+res[0])
-        return res[0]
 
-       
+    bon = 1
+   # with tlock:
+    while (bon):
+            roulette = game.tournerLaRoue()
+            msg = "> La roue tourne... : " +roulette
+            cl.send(bytes(msg,"utf-8"))
+            sleep(1)
+            cl.send(bytes(roulette,"utf-8"))
+            sleep(1)
+            if (roulette != "banqueroute"):
+                cl.send(bytes("\n > Choisissez votre lettre \n","utf-8"))
+                sleep(1)
+                print("\033[94m[*]\033[0m Attente choix du client....")
+                res = cl.recv(1024)
+                res = res.decode('utf-8')
+                print("\033[94m[*]\033[0m Choix du client : "+res[0])
+                nbappartionlettre = game.updateCachee(res[0])
+                cl.send(bytes(str(nbappartionlettre),"utf-8"))  ##on envoie le nb d'apparition , le client gagnera de l'argent
+                if (nbappartionlettre == 0):
+                    bon = 0
+                                                            #faut join les threads
+                envoyerCache(cl)                               #envoie la phrase maj
+                res = cl.recv(1024).decode("utf-8")
+                if (res == "oui"):
+                    res = cl.recv(1024).decode("utf-8")
+                    if(game.checkPhrase(res)):
+                        cl.send(bytes("gagné","utf-8"))
+                    else:
+                        cl.send(bytes("perdu", "utf-8"))
+                        bon = 0
+            else:
+                cl.send(bytes("banqueroute","utf-8"))   #on envoie banqueroute, cest le client qui gerera la perte d'argent
+                bon = 0
+
+    cl.send(bytes("joueur suivant"))
+
+
+
+
+def presentation():
+    for i in list_client:
+        #with tlock:    #zone critique on lock 1 par 1
+            res = i.recvfrom(1024)
+            i.send(bytes("Salut a toi "+res[0] + "l'ami\n","utf-8"))
+    # print(i)
 
 
 
@@ -203,32 +237,32 @@ clients.append((clientsocket,address))
 list_client = [k for k,_ in clients]
 
 # Attente de la réponse des clients et affiche leurs nom
-for i in list_client:
-    res = i.recvfrom(1024)
-    print(res[0])
 
-for i in list_client:
-    i.send(bytes("Salut a toi l'ami\n","utf-8"))
-    # print(i)
 
 cptManche = 0
-debutmanche(cptManche)
-lettre = choix(list_client[0])
-rep = game.updateCachee(lettre)
-list_client[0].send(bytes(rep,"utf-8"))
-sleep(1)
-list_client[0].send(bytes(game.phraseCachee,"utf-8"))
-res = list_client[0].recv(1024).decode("utf-8")
-if (res == "oui"):
-    print("Le Joueur donne une phrase\t")
-    if game.checkPhrase(list_client[0].recv(1024).decode("utf-8")):
-        list_client[0].send(bytes("Bonne Reponse, la phrase est :\t"+game.phraseCourante,"utf-8"))
-    else:
-        list_client[0].send(bytes("Mauvaise reponse","utf-8"))
 
 
 # res = list_client[0].recv(1024).decode("utf-8")
 
+
+##le thread principale celui du serveur
+#th0 =  threading.thread(target =)
+##LES 3 threads joueurs
+#th1 = threading.thread(target =)
+#th2 = threading.thread(target =)
+#th3 = threading.thread(target =)
+
+
+
+
+##########################################################
+#### BOUCLE PRINCIPALE ################
+#########################################################
+presentation()
 while True:
-    debutmanche(cptManche)
+
+    for i in range(3):  #3 MANCHES EN TOUT
+
+        debutmanche(cptManche)
+        choix(list_client[0])
 
