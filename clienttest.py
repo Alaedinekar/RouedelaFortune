@@ -11,7 +11,7 @@ class Joueur:
         self.solde = 0
         self.buzz = False
 
-    def buzzer(self):   ##UTILISATION DUN SELECT 1 THREAD POUR TOUS PUIS ENSUITE UN THREAD CHACUN
+    def buzzer(self):   ##UTILISATION DUN SELECT.select 1 THREAD POUR TOUS PUIS ENSUITE UN THREAD CHACUN
         self.buzz = True
 
     def canbuyVoyelle(self):
@@ -73,15 +73,15 @@ def debut():
 
     phrase4 = s.recv(1024)
     roueTourne = phrase4.decode('utf-8')
-    print("La phrase est : \033[95m" +roueTourne +"\033[0m" ) #Affichage pharseCache 
+    print("La phrase est : \033[95m" + str(roueTourne) +"\033[0m" ) #Affichage pharseCache
 
     gain = s.recv(1024)
     gain = gain.decode('utf-8')
-    print("\033[93m" +gain + "€ ! \033[0m") #Gain de la roue
+    print("\033[93m Vous obtenez " + gain + " ! \033[0m") #Gain de la roue
+    reponseClient('choix',gain)
 
 
-
-def reponseClient(r):
+def reponseClient(r,gain):
     if (r == 'choix'):  ## si cest l'evenement choix alors....
         res = input("> Souhaitez vous acheter une voyelle :(oui/non) \n")
         if (res == 'oui'):
@@ -96,12 +96,12 @@ def reponseClient(r):
 
         s.send(bytes(lettre, "utf-8"))
 
-        res1 = s.recvfrom(1024) #Mauvaise mot jsp d'ou il vient le con
-        # print(res1[0])
+        nblett = s.recv(1024).decode("utf-8")
+        print(nblett)
+        print("\nvous avez trouvé "+ str(nblett) + "lettres\n")
 
-
-        res2 = s.recvfrom(1024) #Vous avez trouvé un mot ou pas du tout
-        print(res2[0])
+        #j1.solde = j1.solde + (int(gain) * int(nblett))
+        print("vous avez desormais " + str(j1.solde) +"€\n")
 
         res3 = s.recvfrom(1024) #Affichage de phraseCachee
         print(res3[0])
@@ -111,7 +111,7 @@ def reponseClient(r):
         if (final == 'oui'):
             s.send(bytes("oui","utf-8"))
             s.send(bytes(j1.proposerPhrase(), "utf-8"))
-            print(s.recvfrom(1024)[0]);
+            print(s.recvfrom(1024)[0])
 
 
 
@@ -129,7 +129,8 @@ s.connect((socket.gethostbyname(name), 1234))   # pour plus tard on proposera de
 
 nam = input("Quel est votre nom : ")
 s.send(bytes(nam,'utf-8'))
-debut()
 
-reponseClient('choix')
-print(s.recv(1024))
+for i in range(3):
+    debut()
+
+

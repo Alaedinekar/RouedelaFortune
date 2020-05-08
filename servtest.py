@@ -8,6 +8,8 @@ import threading
 from random import randint
 from string import ascii_letters
 from time import sleep
+voyelle = ['a','e','i','o','u','y']
+consonne = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
 
 
 tlock = threading.Lock()
@@ -69,7 +71,7 @@ class Jeu():
 
     def premierLettre(self):
         i = randint(0,len(self.phraseCourante)-1)
-        if (self.phraseCourante[i]  in ascii_letters):
+        if (self.phraseCourante[i]  in voyelle or self.phraseCourante[i]  in consonne):
             return self.phraseCourante[i]
         else :
             self.premierLettre()
@@ -107,10 +109,10 @@ class Jeu():
 
 
 def startManche(i):
-    msg = "Nous vous donnons une lettre "
+
     c = game.premierLettre()
     game.updateCachee(c)
-    msg += c
+    msg = "Nous vous donnons une lettre " + str(c)
     sleep(3)
     i.send(bytes(msg  ,'utf-8'))
     sleep(1)
@@ -148,7 +150,7 @@ def choix(cl) :
    # with tlock:
     while (bon):
             roulette = game.tournerLaRoue()
-            msg = "> La roue tourne... : " +roulette
+            msg = "> La roue tourne... : " + roulette
             cl.send(bytes(msg,"utf-8"))
             sleep(1)
             cl.send(bytes(roulette,"utf-8"))
@@ -187,7 +189,7 @@ def presentation():
     for i in list_client:
         #with tlock:    #zone critique on lock 1 par 1
             res = i.recvfrom(1024)
-            i.send(bytes("Salut a toi "+res[0] + "l'ami\n","utf-8"))
+            i.send(bytes("Salut a toi l'ami " + str(res[0]),"utf-8"))
     # print(i)
 
 
