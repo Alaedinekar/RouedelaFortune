@@ -81,7 +81,7 @@ class Jeu():
 
     def premierLettre(self):
         i = randint(0, len(self.phraseCourante) - 1)
-        if (self.phraseCourante[i] in voyelle or self.phraseCourante[i] in consonne):
+        if ((self.phraseCourante[i] in voyelle) or (self.phraseCourante[i] in consonne)):
             return self.phraseCourante[i]
         else:
             self.premierLettre()
@@ -174,6 +174,7 @@ def accepting_connections():
             all_address.append(address)
 
             print("Connection has been established :" + address[0])
+            foo()
 
         except:
             print("Error accepting connections")
@@ -207,22 +208,20 @@ def startManche(i):
     sleep(1)
 
 
-def debutmanche(cptManche):
+def debutmanche(cptManche,i):
     cptManche += 1
     sleep(6)
+    # with tlock:
 
-    for i in all_connections:
-        # with tlock:
-
-        i.send(bytes("======================== \n \t" + str(
-            cptManche) + " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
-        (theme, phrase) = game.choisirUneExpression()
-        game.cacherString(phrase)
-        i.send(bytes("Le theme est : \033[95m " + theme + "\033[0m", "utf-8"))
-        sleep(1)
-        i.send(bytes("\nLa phrase est : \033[95m " + game.phraseCachee + "\033[0m\n", "utf-8"))
-        startManche(i)
-        sleep(1)
+    i.send(bytes("======================== \n \t" + str(
+    cptManche) + " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
+    (theme, phrase) = game.choisirUneExpression()
+    game.cacherString(phrase)
+    i.send(bytes("Le theme est : \033[95m " + theme + "\033[0m", "utf-8"))
+    sleep(1)
+    i.send(bytes("\nLa phrase est : \033[95m " + game.phraseCachee + "\033[0m\n", "utf-8"))
+    startManche(i)
+    sleep(1)
 
 
 def envoyerCache(cl):
@@ -238,7 +237,7 @@ def choix(cl):
         msg = "> La roue tourne... : " + roulette
         cl.send(bytes(msg, "utf-8"))
         sleep(1)
-        cl.send(bytes(roulette, "utf-8"))
+        #cl.send(bytes(roulette, "utf-8"))
         sleep(1)
         if (roulette != "banqueroute"):
             cl.send(bytes("\n > Choisissez votre lettre \n", "utf-8"))
@@ -336,7 +335,7 @@ cptManche = 0
 #########################################################
 
 def foo():
-    while True:
+
         res = input("")
         if (res == "list"):
             list_connections()
@@ -361,15 +360,15 @@ def work():
 
 
 
-        if x == 2:
+        if x == 2: #premier thread client
 
                 #foo()
                 foo2(all_connections)
                 sleep(0.5)
                 presentation(all_connections[0])
-                debutmanche(cptManche)
-
+                debutmanche(cptManche,all_connections[0])
                 choix(all_connections[0])
+
         # if x == 3:
         # foo()
         # choix(all_connections[1])
