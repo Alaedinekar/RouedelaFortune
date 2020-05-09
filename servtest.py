@@ -266,9 +266,11 @@ def choix(cl) :
 
 
 def presentation():
+    
     for i in all_connections:
         #with tlock:    #zone critique on lock 1 par 1
             res = i.recvfrom(1024)
+            print("TEST")
             i.send(bytes("Salut a toi l'ami " + str(res[0]),"utf-8"))
     # print(i)
 
