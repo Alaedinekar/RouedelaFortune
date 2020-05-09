@@ -104,7 +104,7 @@ def reponseClient(r,gain):
         j1.solde = j1.solde + (int(gain) * int(nblett))
         print("vous avez desormais " + str(j1.solde) +"€\n")
 
-        res3 = s.recvfrom(1024) #Affichage de phraseCachee
+        res3 = s.recv(1024).decode("utf-8") #Affichage de phraseCachee
         print(res3[0])
         
         ##verifier si la lettre est bonne , plus recevoir la phrase avec la lettre
@@ -143,7 +143,7 @@ running=True
 while running:
 
     msg=s.recv(1024).decode('utf-8')
-    print("new msg = "+msg)
+    print(">"+msg)
     if(str(msg)=="choix"):
         value=s.recv(1024).decode('utf-8')
         if(str(value)!="banqueroute"):

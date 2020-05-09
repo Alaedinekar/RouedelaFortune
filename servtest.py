@@ -200,10 +200,10 @@ def list_connections():
 def startManche(i):
     c = game.premierLettre()
     game.updateCachee(c)
-    msg = "Nous vous donnons une lettre " + str(c)
-    sleep(3)
-    i.send(bytes(msg, 'utf-8'))
-    sleep(1)
+    #msg = "Nous vous donnons une lettre " + str(c)
+    #sleep(3)
+    #i.send(bytes(msg, 'utf-8'))
+    #sleep(1)
     i.send(bytes(game.phraseCachee, 'utf-8'))
     sleep(1)
 
@@ -261,7 +261,9 @@ def choix(cl):
                     print("Le joueur ne propose pas de phrase")
                 cl.send(bytes("choix","utf-8"))
             else:
-                print("Fin du tour")
+                cl.send(bytes("Fin de tour", "utf-8"))
+                print("0 lettre trouvée, fin du tour")
+                bon = 0
         else:
             cl.send(bytes("banqueroute", "utf-8"))  # on envoie banqueroute, cest le client qui gerera la perte d'argent
             print("Banqueroute")
@@ -366,7 +368,7 @@ def work():
                 foo2(all_connections)
                 sleep(0.5)
                 presentation(all_connections[0])
-                debutmanche(cptManche)
+                debutmanche(cptManche,all_connections[0])
                 choix(all_connections[0])
                 print("------------Tour fini !!------------")
         # if x == 3:
