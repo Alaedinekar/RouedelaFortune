@@ -1,6 +1,5 @@
 import socket
-import threading
-import time
+
 
 voyelle = ['a','e','i','o','u','y']
 consonne = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
@@ -125,7 +124,7 @@ j1 = Joueur("shrek")
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # name = socket.gethostname()
 name = 'localhost'
-s.connect((socket.gethostbyname(name), 1234))   # pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
+s.connect((socket.gethostbyname(name), 9999))   # pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
 
 nam = input("Quel est votre nom : ")
 s.send(bytes(nam,'utf-8'))

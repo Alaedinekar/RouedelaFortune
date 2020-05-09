@@ -5,11 +5,17 @@
 import socket
 import sys
 import threading
+from queue import Queue
 from random import randint
 from string import ascii_letters
 from time import sleep
 voyelle = ['a','e','i','o','u','y']
 consonne = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
+nbthread = 4  #nombre de thread
+job = [1,2]
+queue = Queue()
+all_connections = []
+all_address = []
 
 
 tlock = threading.Lock()
@@ -107,6 +113,80 @@ class Jeu():
 
 
 
+def creat_job():
+    for x in job:
+        queue.put(x)
+    queue.join()
+
+def create_threadclient():
+    for _ in range(nbthread):
+        t = threading.Thread(target = work)
+        t.daemon = True
+        t.start()
+
+def create_socket():
+    try:
+        global host
+        global port
+        global s
+        host = ""
+        port = 9999
+        s = socket.socket()
+
+    except socket.error as msg:
+        print("Socket creation error: " + str(msg))
+
+def bind_socket():
+    try:
+        global host
+        global port
+        global s
+        print("Binding the Port: " + str(port))
+
+        s.bind((host, port))
+        s.listen(3)
+
+    except socket.error as msg:
+        print("Socket Binding error" + str(msg) + "\n" + "Retrying...")
+        bind_socket()
+
+def accepting_connections():
+    for c in all_connections:
+        c.close()
+
+    del all_connections[:]
+    del all_address[:]
+
+    while True:
+        try:
+            conn, address = s.accept()
+            s.setblocking(1)  # prevents timeout
+
+            all_connections.append(conn)
+            all_address.append(address)
+
+            print("Connection has been established :" + address[0])
+
+        except:
+            print("Error accepting connections")
+
+def list_connections():
+    results = ''
+
+    for i, conn in enumerate(all_connections):
+        try:
+            conn.send(str.encode(' '))
+            conn.recv(2048)
+        except:
+            del all_connections[i]
+            del all_address[i]
+            continue
+
+        results = str(i) + "   " + str(all_address[i][0]) + "   " + str(all_address[i][1]) + "\n"
+
+    print("----Clients----" + "\n" + results)
+
+
 
 def startManche(i):
 
@@ -126,7 +206,7 @@ def debutmanche(cptManche):
     cptManche += 1
     sleep(6)
 
-    for i in list_client:
+    for i in all_connections:
         #with tlock:
 
                 i.send(bytes("======================== \n \t"+str(cptManche)+ " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
@@ -186,7 +266,7 @@ def choix(cl) :
 
 
 def presentation():
-    for i in list_client:
+    for i in all_connections:
         #with tlock:    #zone critique on lock 1 par 1
             res = i.recvfrom(1024)
             i.send(bytes("Salut a toi l'ami " + str(res[0]),"utf-8"))
@@ -199,46 +279,46 @@ def presentation():
 #####################################################
 
 game =Jeu()
-tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#
+# # Parametres de connexion serveur
+# try:
+#     if sys.argv[1] != '/0' and sys.argv[2] != '/0':
+#         ip = sys.argv[1]
+#         port = sys.argv[2]
+#     else:
+#         name = socket.gethostname()
+#         ip = socket.gethostbyname(name)
+#         port = 1234
+# except:
+#     print("serveur par defaut local")
+#
+# # name = socket.gethostname()
+# name = 'localhost'
+# ip = socket.gethostbyname(name)
+# port = 1234
+# try:
+#     tcpsock.bind((ip, port))
+#     tcpsock.listen(3)
+# except socket.error:
+#     print("La liaison du socket à l'adresse choisie a échoué.")
+#     sys.exit()
 
-# Parametres de connexion serveur
-try:
-    if sys.argv[1] != '/0' and sys.argv[2] != '/0':
-        ip = sys.argv[1]
-        port = sys.argv[2]
-    else:
-        name = socket.gethostname()
-        ip = socket.gethostbyname(name)
-        port = 1234
-except:
-    print("serveur par defaut local")
-
-# name = socket.gethostname()
-name = 'localhost'
-ip = socket.gethostbyname(name)
-port = 1234
-try:
-    tcpsock.bind((ip, port))
-    tcpsock.listen(3)
-except socket.error:
-    print("La liaison du socket à l'adresse choisie a échoué.")
-    sys.exit()
-
-
-
-clients = []
-
-print("\033[93m[*] En écoute... \033[0m")
-
-clientsocket, address = tcpsock.accept()
-
-print(f"\033[93m[+] Le joueur {address} vient d'apparaitre \033[0m")
-clients.append((clientsocket,address))
-
-
-list_client = [k for k,_ in clients]
-
-# Attente de la réponse des clients et affiche leurs nom
+#
+#
+# clients = []
+#
+# print("\033[93m[*] En écoute... \033[0m")
+#
+# clientsocket, address = tcpsock.accept()
+#
+# print(f"\033[93m[+] Le joueur {address} vient d'apparaitre \033[0m")
+# clients.append((clientsocket,address))
+#
+#
+# list_client = [k for k,_ in clients]
+#
+# # Attente de la réponse des clients et affiche leurs nom
 
 
 cptManche = 0
@@ -247,24 +327,39 @@ cptManche = 0
 # res = list_client[0].recv(1024).decode("utf-8")
 
 
-##le thread principale celui du serveur
-#th0 =  threading.thread(target =)
-##LES 3 threads joueurs
-#th1 = threading.thread(target =)
-#th2 = threading.thread(target =)
-#th3 = threading.thread(target =)
-
-
-
-
 ##########################################################
 #### BOUCLE PRINCIPALE ################
 #########################################################
 presentation()
-while True:
+def foo():
+    while True:
+        res = input("")
+        if(res == "list"):
+            list_connections()
+            continue
 
-    for i in range(3):  #3 MANCHES EN TOUT
+def work():
+    while True:
+        x = queue.get()
+        if x == 1:            ## thread qui gere les connections
+            create_socket()
+            bind_socket()
+            accepting_connections()
 
-        debutmanche(cptManche)
-        choix(list_client[0])
 
+        if x == 2:
+            foo()
+            #choix(all_connections[0])
+        #if x == 3:
+            #foo()
+            #choix(all_connections[1])
+
+        #if x == 4:
+            #choix(all_connections[2])
+            #foo()
+
+
+        queue.task_done()
+
+create_threadclient()
+creat_job()
