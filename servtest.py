@@ -12,7 +12,7 @@ from time import sleep
 
 voyelle = ['a', 'e', 'i', 'o', 'u', 'y']
 consonne = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z']
-nbthread = 6  # nombre de thread
+nbthread = 1  # nombre de thread
 job = [1,2,3,4,5]
 queue = Queue()
 all_connections = []
@@ -126,6 +126,7 @@ def creat_job():
 
 def create_threadclient():
     for _ in range(nbthread):
+        print("Création du thr")
         t = threading.Thread(target=work)
         t.daemon = True
         t.start()
@@ -230,8 +231,34 @@ def envoyerCache(cl):
     cl.send(bytes(game.phraseCachee, "utf-8"))
     sleep(0.3)
 
-#Choix de la lettre
-def choixLettre
+#Retourne la lettre du client
+def choixLettre():
+    print("\033[94m[*]\033[0m Attente choix du client....")
+    res = cl.recv(1024)
+    res = res.decode('utf-8')
+    print("\033[94m[*]\033[0m Choix du client : " + res[0])
+    return res[0]
+
+#Retourne le nombre de lettres apparuent 
+def nbapparitionlettre(lettre):
+    nbapparitionlettre = game.updateCachee(lettre)
+    cl.send(bytes(str(nbapparitionlettre), "utf-8"))  ##on envoie le nb d'apparition , le client gagnera de l'argent
+    envoyerCache(cl)  # envoie la phrase maj
+    return nbapparitionlettre
+
+#Proposer une phrase
+def proposerPhrase(phrase):
+    res = cl.recv(1024).decode("utf-8")
+    if (res == "oui"):
+        res = cl.recv(1024).decode("utf-8")
+        if (game.checkPhrase(res)):
+            cl.send(bytes("Gagné", "utf-8"))
+        else:
+            cl.send(bytes("Perdu", "utf-8"))
+    else:
+        print("Le joueur ne propose pas de phrase")
+   
+
 
 
 def choix(cl):
@@ -352,7 +379,7 @@ def next_player():
         if joueur_courant == all_connections[2]:
             joueur_courant = all_connections[0]
 
-joueur_courant = all_connections[0]
+# joueur_courant = all_connections[0]
 
 def work():
     global res
@@ -362,7 +389,6 @@ def work():
             create_socket()
             bind_socket()
             accepting_connections()
-
 
         if x == 2:#en ecoute J1
             res = (all_connections[0].recv(2048),0)
