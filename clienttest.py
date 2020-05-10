@@ -131,8 +131,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 name = 'localhost'
 s.connect((socket.gethostbyname(name), 9999))   # pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
 
-nam = input("Quel est votre nom : ")
-s.send(bytes(nam,'utf-8'))
+
 
 
 #for i in range(3):
