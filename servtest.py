@@ -12,11 +12,12 @@ from time import sleep
 
 voyelle = ['a', 'e', 'i', 'o', 'u', 'y']
 consonne = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z']
-nbthread = 4  # nombre de thread
-job = [1, 2]
+nbthread = 6  # nombre de thread
+job = [1,2,3,4,5]
 queue = Queue()
 all_connections = []
 all_address = []
+joueur = []
 
 tlock = threading.Lock()
 
@@ -152,7 +153,7 @@ def bind_socket():
         print("Binding the Port: " + str(port))
 
         s.bind((host, port))
-        s.listen(3)
+        s.listen(1)
 
     except socket.error as msg:
         print("Socket Binding error" + str(msg) + "\n" + "Retrying...")
@@ -275,12 +276,11 @@ def choix(cl):
 
 
 def presentation(i):
-    with tlock:    #zone critique on lock 1 par 1
+
         res = i.recvfrom(1024)
         i.send(bytes("Salut a toi l'ami " + str(res[0]), "utf-8"))
 
 
-# print(i)
 
 
 #####################################################
@@ -288,7 +288,6 @@ def presentation(i):
 #####################################################
 
 game = Jeu()
-# tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #
 # # Parametres de connexion serveur
 # try:
@@ -301,25 +300,7 @@ game = Jeu()
 #         port = 1234
 # except:
 #     print("serveur par defaut local")
-#
-# # name = socket.gethostname()
-# name = 'localhost'
-# ip = socket.gethostbyname(name)
-# port = 1234
-# try:
-#     tcpsock.bind((ip, port))
-#     tcpsock.listen(3)
-# except socket.error:
-#     print("La liaison du socket à l'adresse choisie a échoué.")
-#     sys.exit()
 
-#
-#
-# clients = []
-#
-# print("\033[93m[*] En écoute... \033[0m")
-#
-# clientsocket, address = tcpsock.accept()
 #
 # print(f"\033[93m[+] Le joueur {address} vient d'apparaitre \033[0m")
 # clients.append((clientsocket,address))
@@ -356,7 +337,22 @@ def foo2(lis):
                 print(i)
             break
 
+
+
+def next_player():
+    global joueur_courant
+    with tlock:
+        if joueur_courant == all_connections[0]:
+            joueur_courant= all_connections[1]
+        if joueur_courant == all_connections[1]:
+            joueur_courant = all_connections[2]
+        if joueur_courant == all_connections[2]:
+            joueur_courant = all_connections[0]
+
+joueur_courant = all_connections[0]
+
 def work():
+
     while True:
         x = queue.get()
         if x == 1:  ## thread qui gere les connections
@@ -364,15 +360,38 @@ def work():
             bind_socket()
             accepting_connections()
 
-        if x == 2:
-                #foo()
-                foo2(all_connections)
-                sleep(0.5)
-                presentation(all_connections[0])
-                debutmanche(cptManche,all_connections[0])
-                choix(all_connections[0])
-                print("------------Tour fini !!------------")
+
+        if x == 2:#en ecoute J1
+            pass
+
+        if x==3:#en ecoute J2
+            pass
+
+        if x== 4:#en ecoute J3
+            pass
+
+
+
+        if x == 5: # boucle du jeu
+
+                 #foo()
+                 foo2(all_connections)
+                 sleep(0.5)
+                 #presentation(joueur_courant)
+                 debutmanche(cptManche,joueur_courant)
+                 choix(joueur_courant)
+                 print("------------Tour fini !!------------")
+                 next_player()
+
         # if x == 3:
+        #     tlock.acquire()
+        #     #foo2(all_connections)
+        #     #sleep(0.5)
+        #     presentation(all_connections[1])
+        #     debutmanche(cptManche, all_connections[1])
+        #     choix(all_connections[1])
+        #     print("------------Tour fini !!------------")
+        #     tlock.release()
         # foo()
         # choix(all_connections[1])
 
