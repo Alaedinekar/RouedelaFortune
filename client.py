@@ -62,9 +62,10 @@ def debut():
     phrase2 = phrase2.decode('utf-8')
     print(phrase2 + ": ")  # Nous vous donner une lettre
 
-    # phrase4 = s.recv(1024)
-    # roueTourne = phrase4.decode('utf-8')
-    # print("\033[95m" + str(roueTourne) +"\033[0m" )
+    phrase4 = s.recv(1024)
+    phrase4 = phrase4.decode('utf-8')#phrase a jour
+    print( phrase4 +"\n" )
+
     roue = s.recv(1024).decode('utf-8')
     print("la roue tombe sur " + roue)
     gain = s.recv(1024)
@@ -123,9 +124,11 @@ j1 = Joueur()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 name = 'localhost'
-s.connect((socket.gethostbyname(name),
-           9999))  # pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
+s.connect((socket.gethostbyname(name), 9999))  # pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
 
+
+pres = s.recv(1024).decode('utf-8')
+print(pres + "\n")  # presentation
 debut()
 
 while True:

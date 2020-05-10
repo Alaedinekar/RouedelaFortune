@@ -24,29 +24,16 @@ tlock = threading.Lock()
 
 class Jeu():
     def __init__(self):
-        self.listeJoueur = []
-        self.roue = ['100', '200', '2000', 'banqueroute']
+
+        self.roue = ['100', '200', '2000', 'banqueroute','1000','3000','5000','10000']
         self.ValeurRoue = ''
         self.phraseCourante = ''
         self.phraseCachee = ''
         self.themecourant = ''
+        self.premierl = ''
 
-        self.theme = ["Animaux", "Profit", "Gourmet", "litterature", "litterature", "difficulté", "faune et flore",
-                      "geographie"]
-        self.expression = ["Donner sa langue au chat", "riche comme cresus",
-                           "Avoir les yeux plus gros que le ventre",
-                           "Horace",
-                           "Madame Bovary",
-                           "Ca ne casse pas trois pattes a un canard",
-                           "une tulipe",
-                           "argentine"]
-
-    def afficherListe(self):
-        for j in self.listeJoueur:
-            print(j.nom)
-
-    def ajouterJoueur(self, nom):
-        self.listeJoueur.append(nom)
+        self.theme = ["Animaux", "Profit", "expression", "litterature", "litterature","difficulté", "faune et flore","geographie"]
+        self.expression = ["Donner sa langue au chat", "riche comme cresus","Avoir les yeux plus gros que le ventre","Horace","Madame Bovary","Ca ne casse pas trois pattes a un canard","une tulipe","argentine"]
 
     def tournerLaRoue(self):
         """Tourne la roue à votre place, vous faites pas mal !"""
@@ -59,6 +46,7 @@ class Jeu():
         a = randint(0, len(self.theme) - 1)
         laPhrase = self.expression[a]
         self.phraseCourante = laPhrase
+        self.themecourant = self.theme[a]
         theme = self.theme[a]
         self.expression.remove(laPhrase)
         self.theme.remove(theme)
@@ -90,6 +78,7 @@ class Jeu():
     def premierLettre(self):
         i = randint(0, len(self.phraseCourante) - 1)
         if ((self.phraseCourante[i] in voyelle) or (self.phraseCourante[i] in consonne)):
+            self.premierl = self.phraseCourante[i]
             return self.phraseCourante[i]
         else:
             self.premierLettre()
@@ -102,14 +91,10 @@ class Jeu():
             if self.phraseCourante[i] == laLettre:
                 emplacement.append(nbr)
                 mot_list[i] = laLettre
-                game.phraseCachee = ''.join(mot_list)
+                self.phraseCachee = ''.join(mot_list)
                 # game.phraseCachee[nbr-1] = laLettre
             else:
                 nbr = nbr + 1
-
-        if len(emplacement) > 0:
-            print("\033[92m[*]\033[0m Le client à trouvé " + str(len(emplacement)) + " lettre(s)")
-            print(game.phraseCachee)
 
             return len(emplacement)
         else:
@@ -118,10 +103,10 @@ class Jeu():
 
     def checkPhrase(self, str):
         if self.phraseCourante == str:
-            print("Bonne reponse")
+
             return True
         else:
-            print("Mauvaise reponse")
+
             return False
 
 
@@ -195,12 +180,11 @@ def list_connections():
 
 
 def startManche(i):
-    c = game.premierLettre()
-    game.updateCachee(c)
-    # msg = "Nous vous donnons une lettre " + str(c)
-    # sleep(3)
-    # i.send(bytes(msg, 'utf-8'))
-    # sleep(1)
+    c = game.premierl
+    msg = "Nous vous donnons une lettre " + str(c)
+    sleep(3)
+    i.send(bytes(msg, 'utf-8'))
+    sleep(1)
     i.send(bytes(game.phraseCachee, 'utf-8'))
     sleep(1)
 
@@ -260,15 +244,12 @@ def choix(cl):
                 bon = 0
         else:
             cl.send(bytes("banqueroute", "utf-8"))  # on envoie banqueroute, cest le client qui gerera la perte d'argent
-            print("Banqueroute")
             bon = 0
 
-    cl.send(bytes("joueur suivant", "utf-8"))
 
 
-def presentation(i):
-    res = i.recvfrom(1024)
-    i.send(bytes("Salut a toi l'ami " + str(res[0]), "utf-8"))
+
+
 
 
 #####################################################
@@ -369,18 +350,28 @@ def work():  # les taches des threads
         joueur_courant = all_connections[0]  ##on zap l'etape de l'egnime rapide cest toujours le premier co le 1er
         depart = True
 
-        if x == 2:  # en ecoute J1
+
+
+
+        if x == 2:
+            all_connections[0].send(bytes("vous etes le joueur 1", "utf-8"))
             debutmanche(cptManche, all_connections[0])
             envoieroue(all_connections[0])
         if x == 3:
+            all_connections[1].send(bytes("vous etes le joueur 2", "utf-8"))
             debutmanche(cptManche, all_connections[1])
             envoieroue(all_connections[1])
         if x == 4:
+            all_connections[2].send(bytes("vous etes le joueur 3", "utf-8"))
             debutmanche(cptManche, all_connections[2])
             envoieroue(all_connections[2])
         if x == 5:
             while True:
-                game.tournerLaRoue()
+                c = game.premierLettre()
+                game.updateCachee(c)
+                r=game.tournerLaRoue()
+                if r == "banqueroute":
+                    next_player()
                 choix(joueur_courant)
                 print("------------Tour fini !!------------")
                 sleep(2)
