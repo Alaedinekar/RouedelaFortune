@@ -140,6 +140,7 @@ def create_socket():
         s = socket.socket()
 
     except socket.error as msg:
+        sleep(5)
         print("Socket creation error: " + str(msg))
 
 

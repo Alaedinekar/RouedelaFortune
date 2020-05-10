@@ -99,10 +99,10 @@ def reponseClient(r,gain):
         s.send(bytes(lettre, "utf-8"))
 
         nblett = s.recv(1024).decode("utf-8")
-        print("\nvous avez trouvé "+ str(nblett) + "lettres\n")
+        print("\nvous avez trouvé "+ str(nblett) + " lettres\n")
 
-        j1.solde = j1.solde + (int(gain) * int(nblett))
-        print("vous avez desormais " + str(j1.solde) +"€\n")
+        # j1.solde = j1.solde + (int(gain) * int(nblett))
+        # print("vous avez desormais " + str(j1.solde) +"€\n")
 
         res3 = s.recv(1024).decode("utf-8") #Affichage de phraseCachee
         print(res3[0])
