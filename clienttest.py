@@ -5,8 +5,8 @@ voyelle = ['a','e','i','o','u','y']
 consonne = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
 class Joueur:
 
-    def __init__(self,nom):
-        self.nom = nom
+    def __init__(self):
+
         self.solde = 0
         self.buzz = False
 
@@ -73,12 +73,16 @@ def debut():
     #phrase4 = s.recv(1024)
     #roueTourne = phrase4.decode('utf-8')
     #print("\033[95m" + str(roueTourne) +"\033[0m" ) 
-
+    roue = s.recv(1024).decode('utf-8')
+    print("la roue tombe sur "+roue)
     gain = s.recv(1024)
     gain = gain.decode('utf-8')
-    print("\033[93m Vous obtenez " + gain + " ! \033[0m") #Gain de la roue
+    print("\n Vous obtenez " + gain + " ! \n") #Gain de la roue
     if(gain!="banqueroute"):
         reponseClient('choix',gain)
+    else:
+        j1.solde=0
+        print("\nvous perdez votre solde\n")
 
 
 def reponseClient(r,gain):
@@ -124,30 +128,30 @@ def reponseClient(r,gain):
 #####################################################
 
 
-j1 = Joueur("shrek")
+j1 = Joueur()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# name = socket.gethostname()
 name = 'localhost'
 s.connect((socket.gethostbyname(name), 9999))   # pour plus tard on proposera de choisir ou ce co , la pour l'instant on reste en local
 
 
 
 
-#for i in range(3):
+
 debut()
 
-running=True
 
-while running:
+while True:
+    running = True
+    while running:
 
-    msg=s.recv(1024).decode('utf-8')
-    print(">"+msg)
-    if(str(msg)=="choix"):
-        value=s.recv(1024).decode('utf-8')
-        if(str(value)!="banqueroute"):
-            reponseClient("choix",value)
-        else:
-            print("Banqueroute !")
-    elif(str(msg)=="fin"):
-        running=False
+        msg=s.recv(1024).decode('utf-8')
+        print(">"+msg)
+        if(str(msg)=="choix"):
+            value=s.recv(1024).decode('utf-8')
+            if(str(value)!="banqueroute"):
+                reponseClient("choix",value)
+            else:
+                print("Banqueroute !")
+        elif(str(msg)=="fin"):
+            running=False
