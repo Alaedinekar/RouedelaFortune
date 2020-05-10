@@ -355,7 +355,7 @@ def next_player():
 joueur_courant = all_connections[0]
 
 def work():
-
+    global res
     while True:
         x = queue.get()
         if x == 1:  ## thread qui gere les connections
@@ -365,13 +365,13 @@ def work():
 
 
         if x == 2:#en ecoute J1
-            pass
+            res = (all_connections[0].recv(2048),0)
 
         if x==3:#en ecoute J2
-            pass
+            res = (all_connections[1].recv(2048),1)
 
         if x== 4:#en ecoute J3
-            pass
+            res = (all_connections[2].recv(2048),2)
 
 
 
