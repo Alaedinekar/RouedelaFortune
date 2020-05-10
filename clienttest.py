@@ -129,7 +129,11 @@ s.connect((socket.gethostbyname(name), 9999))   # pour plus tard on proposera de
 nam = input("Quel est votre nom : ")
 s.send(bytes(nam,'utf-8'))
 
-for i in range(3):
-    debut()
+bienvenu = s.recv(1024)
+bienvenu = bienvenu.decode('utf-8')
+print(bienvenu + "\n ")  # Salut a toi l'ami (Référence à MisterRobot)
+
+#for i in range(3):
+debut()
 
 

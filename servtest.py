@@ -1,6 +1,6 @@
-#LANCER LE SERVEUR AVEC UNE IP ET SON PORT
-#serv.py ip port
-#sinon le serv sera local
+# LANCER LE SERVEUR AVEC UNE IP ET SON PORT
+# serv.py ip port
+# sinon le serv sera local
 
 import socket
 import sys
@@ -9,16 +9,17 @@ from queue import Queue
 from random import randint
 from string import ascii_letters
 from time import sleep
-voyelle = ['a','e','i','o','u','y']
-consonne = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','z']
-nbthread = 4  #nombre de thread
-job = [1,2]
+
+voyelle = ['a', 'e', 'i', 'o', 'u', 'y']
+consonne = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z']
+nbthread = 4  # nombre de thread
+job = [1, 2]
 queue = Queue()
 all_connections = []
 all_address = []
 
-
 tlock = threading.Lock()
+
 
 class Jeu():
     def __init__(self):
@@ -27,29 +28,33 @@ class Jeu():
         self.ValeurRoue = ''
         self.phraseCourante = ''
         self.phraseCachee = ''
-        self.theme = ["Animaux","Profit","Gourmet","Bof Bof","difficulté"]
-        self.expression = ["Donner sa langue au chat","Pierre qui roule n'amasse pas mousse","Avoir les yeux plus gros que le ventre","Les doigts dans le nez","Ca ne casse pas trois pattes a un canard"]
+        self.theme = ["Animaux", "Profit", "Gourmet", "Bof Bof", "difficulté"]
+        self.expression = ["Donner sa langue au chat", "Pierre qui roule n'amasse pas mousse",
+                           "Avoir les yeux plus gros que le ventre", "Les doigts dans le nez",
+                           "Ca ne casse pas trois pattes a un canard"]
 
     def afficherListe(self):
         for j in self.listeJoueur:
             print(j.nom)
-    def ajouterJoueur(self,nom):
+
+    def ajouterJoueur(self, nom):
         self.listeJoueur.append(nom)
+
     def tournerLaRoue(self):
         """Tourne la roue à votre place, vous faites pas mal !"""
-        lacase = randint(0,len(self.roue)-1)
-        self.ValeurRoue =  self.roue[lacase]
+        lacase = randint(0, len(self.roue) - 1)
+        self.ValeurRoue = self.roue[lacase]
         return self.roue[lacase]
 
     def choisirUneExpression(self):
         """Choisis une expression dans la liste"""
-        a = randint(0,len(self.theme)-1)
-        laPhrase  = self.expression[a]
+        a = randint(0, len(self.theme) - 1)
+        laPhrase = self.expression[a]
         self.phraseCourante = laPhrase
         theme = self.theme[a]
         self.expression.remove(laPhrase)
         self.theme.remove(theme)
-        return (theme,laPhrase)
+        return (theme, laPhrase)
 
     # def rapidite(self,str):
     #     pass
@@ -64,8 +69,7 @@ class Jeu():
     #     print(expressionCachee)
     #     print("Christophe : Top !")
 
-
-    def cacherString(self,str):
+    def cacherString(self, str):
         newstr = ''
         for c in str:
             if c in ascii_letters:
@@ -76,17 +80,17 @@ class Jeu():
         return newstr
 
     def premierLettre(self):
-        i = randint(0,len(self.phraseCourante)-1)
-        if (self.phraseCourante[i]  in voyelle or self.phraseCourante[i]  in consonne):
+        i = randint(0, len(self.phraseCourante) - 1)
+        if (self.phraseCourante[i] in voyelle or self.phraseCourante[i] in consonne):
             return self.phraseCourante[i]
-        else :
+        else:
             self.premierLettre()
 
     def updateCachee(self, laLettre):
         emplacement = []
         nbr = 1
         mot_list = list(game.phraseCachee)
-        for i in range(len(self.phraseCourante)-1):
+        for i in range(len(self.phraseCourante) - 1):
             if self.phraseCourante[i] == laLettre:
                 emplacement.append(nbr)
                 mot_list[i] = laLettre
@@ -96,15 +100,16 @@ class Jeu():
                 nbr = nbr + 1
 
         if len(emplacement) > 0:
-            print("\033[92m[*]\033[0m Le client à trouvé "+ str(len(emplacement))+" lettre(s)" )
+            print("\033[92m[*]\033[0m Le client à trouvé " + str(len(emplacement)) + " lettre(s)")
             print(game.phraseCachee)
 
             return len(emplacement)
         else:
             return 0
         # return nbr
-    def checkPhrase(self,str):
-        if self.phraseCourante==str:
+
+    def checkPhrase(self, str):
+        if self.phraseCourante == str:
             print("Bonne reponse")
             return True
         else:
@@ -112,17 +117,18 @@ class Jeu():
             return False
 
 
-
 def creat_job():
     for x in job:
         queue.put(x)
     queue.join()
 
+
 def create_threadclient():
     for _ in range(nbthread):
-        t = threading.Thread(target = work)
+        t = threading.Thread(target=work)
         t.daemon = True
         t.start()
+
 
 def create_socket():
     try:
@@ -135,6 +141,7 @@ def create_socket():
 
     except socket.error as msg:
         print("Socket creation error: " + str(msg))
+
 
 def bind_socket():
     try:
@@ -149,6 +156,7 @@ def bind_socket():
     except socket.error as msg:
         print("Socket Binding error" + str(msg) + "\n" + "Retrying...")
         bind_socket()
+
 
 def accepting_connections():
     for c in all_connections:
@@ -170,6 +178,7 @@ def accepting_connections():
         except:
             print("Error accepting connections")
 
+
 def list_connections():
     results = ''
 
@@ -187,19 +196,15 @@ def list_connections():
     print("----Clients----" + "\n" + results)
 
 
-
 def startManche(i):
-
     c = game.premierLettre()
     game.updateCachee(c)
     msg = "Nous vous donnons une lettre " + str(c)
     sleep(3)
-    i.send(bytes(msg  ,'utf-8'))
+    i.send(bytes(msg, 'utf-8'))
     sleep(1)
     i.send(bytes(game.phraseCachee, 'utf-8'))
     sleep(1)
-        
-
 
 
 def debutmanche(cptManche):
@@ -207,81 +212,78 @@ def debutmanche(cptManche):
     sleep(6)
 
     for i in all_connections:
-        #with tlock:
+        # with tlock:
 
-                i.send(bytes("======================== \n \t"+str(cptManche)+ " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
-                (theme,phrase) = game.choisirUneExpression()
-                game.cacherString(phrase)
-                i.send(bytes("Le theme est : \033[95m " + theme + "\033[0m","utf-8"))
-                sleep(1)
-                i.send(bytes("\nLa phrase est : \033[95m " + game.phraseCachee + "\033[0m\n","utf-8"))
-                startManche(i)
-                sleep(1)
+        i.send(bytes("======================== \n \t" + str(
+            cptManche) + " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
+        (theme, phrase) = game.choisirUneExpression()
+        game.cacherString(phrase)
+        i.send(bytes("Le theme est : \033[95m " + theme + "\033[0m", "utf-8"))
+        sleep(1)
+        i.send(bytes("\nLa phrase est : \033[95m " + game.phraseCachee + "\033[0m\n", "utf-8"))
+        startManche(i)
+        sleep(1)
+
 
 def envoyerCache(cl):
-    cl.send(bytes(game.phraseCachee,"utf-8"))
+    cl.send(bytes(game.phraseCachee, "utf-8"))
     sleep(0.3)
 
 
-
-def choix(cl) :
-
+def choix(cl):
     bon = 1
-   # with tlock:
+    # with tlock:
     while (bon):
-            roulette = game.tournerLaRoue()
-            msg = "> La roue tourne... : " + roulette
-            cl.send(bytes(msg,"utf-8"))
+        roulette = game.tournerLaRoue()
+        msg = "> La roue tourne... : " + roulette
+        cl.send(bytes(msg, "utf-8"))
+        sleep(1)
+        cl.send(bytes(roulette, "utf-8"))
+        sleep(1)
+        if (roulette != "banqueroute"):
+            cl.send(bytes("\n > Choisissez votre lettre \n", "utf-8"))
             sleep(1)
-            cl.send(bytes(roulette,"utf-8"))
-            sleep(1)
-            if (roulette != "banqueroute"):
-                cl.send(bytes("\n > Choisissez votre lettre \n","utf-8"))
-                sleep(1)
-                print("\033[94m[*]\033[0m Attente choix du client....")
-                res = cl.recv(1024)
-                res = res.decode('utf-8')
-                print("\033[94m[*]\033[0m Choix du client : "+res[0])
-                nbappartionlettre = game.updateCachee(res[0])
-                cl.send(bytes(str(nbappartionlettre),"utf-8"))  ##on envoie le nb d'apparition , le client gagnera de l'argent
-                if (nbappartionlettre == 0):
-                    bon = 0
-                                                            #faut join les threads
-                envoyerCache(cl)                               #envoie la phrase maj
-                res = cl.recv(1024).decode("utf-8")
-                if (res == "oui"):
-                    res = cl.recv(1024).decode("utf-8")
-                    if(game.checkPhrase(res)):
-                        cl.send(bytes("gagné","utf-8"))
-                    else:
-                        cl.send(bytes("perdu", "utf-8"))
-                        bon = 0
-            else:
-                cl.send(bytes("banqueroute","utf-8"))   #on envoie banqueroute, cest le client qui gerera la perte d'argent
+            print("\033[94m[*]\033[0m Attente choix du client....")
+            res = cl.recv(1024)
+            res = res.decode('utf-8')
+            print("\033[94m[*]\033[0m Choix du client : " + res[0])
+            nbappartionlettre = game.updateCachee(res[0])
+            cl.send(
+                bytes(str(nbappartionlettre), "utf-8"))  ##on envoie le nb d'apparition , le client gagnera de l'argent
+            if (nbappartionlettre == 0):
                 bon = 0
+                # faut join les threads
+            envoyerCache(cl)  # envoie la phrase maj
+            res = cl.recv(1024).decode("utf-8")
+            if (res == "oui"):
+                res = cl.recv(1024).decode("utf-8")
+                if (game.checkPhrase(res)):
+                    cl.send(bytes("gagné", "utf-8"))
+                else:
+                    cl.send(bytes("perdu", "utf-8"))
+                    bon = 0
+        else:
+            cl.send(bytes("banqueroute", "utf-8"))  # on envoie banqueroute, cest le client qui gerera la perte d'argent
+            bon = 0
 
     cl.send(bytes("joueur suivant"))
 
 
+def presentation(i):
+    with tlock:    #zone critique on lock 1 par 1
+        res = i.recvfrom(1024)
+        i.send(bytes("Salut a toi l'ami " + str(res[0]), "utf-8"))
 
 
-def presentation():
-    
-    for i in all_connections:
-        #with tlock:    #zone critique on lock 1 par 1
-            res = i.recvfrom(1024)
-            print("TEST")
-            i.send(bytes("Salut a toi l'ami " + str(res[0]),"utf-8"))
-    # print(i)
-
+# print(i)
 
 
 #####################################################
 # --------------- DEBUT DE LA PARTIE ---------------#
 #####################################################
 
-game =Jeu()
-#tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+game = Jeu()
+# tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #
 # # Parametres de connexion serveur
 # try:
@@ -332,36 +334,52 @@ cptManche = 0
 ##########################################################
 #### BOUCLE PRINCIPALE ################
 #########################################################
-presentation()
+
 def foo():
     while True:
         res = input("")
-        if(res == "list"):
+        if (res == "list"):
             list_connections()
-            continue
+            res = ""
+            pass
+
+
+def foo2(lis):
+    while True:
+       if(len(lis) != 0):
+            for i in lis:
+                print(i)
+            break
 
 def work():
     while True:
         x = queue.get()
-        if x == 1:            ## thread qui gere les connections
+        if x == 1:  ## thread qui gere les connections
             create_socket()
             bind_socket()
             accepting_connections()
 
 
+
         if x == 2:
-            foo()
-            #choix(all_connections[0])
-        #if x == 3:
-            #foo()
-            #choix(all_connections[1])
 
-        #if x == 4:
-            #choix(all_connections[2])
-            #foo()
+                #foo()
+                foo2(all_connections)
+                sleep(0.5)
+                presentation(all_connections[0])
+                debutmanche(cptManche)
 
+                choix(all_connections[0])
+        # if x == 3:
+        # foo()
+        # choix(all_connections[1])
+
+        # if x == 4:
+        # choix(all_connections[2])
+        # foo()
 
         queue.task_done()
+
 
 create_threadclient()
 creat_job()
