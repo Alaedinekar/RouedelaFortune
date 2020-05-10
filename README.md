@@ -3,7 +3,26 @@
 Mini Projet  : Communication Inter Process
 Cahier des charges : Il s'agit de la "Roue de la Fortune".
 Fabriquer la version client/serveur du jeu décrit par la vidéo : https://www.youtube.com/watch?v=ZJo-Oq36ikA
+Groupes : Arthur Fontaine - Aleadine Karouia - Shaun Phipps - Fabre Quentin
 
+Introduction : Le projet est developpé en Python et a pour objectif de reproduire le célèbre jeu La roue de la fortune. L'interface de jeu sera implémentée depuis l'invité de commande et se composera de 4 Joueurs en ligne.
+
+Lancement  : 
+Afin de pouvoir lancer le serveur il faudra exécuter la ligne suivante : python3 serv.py
+La connexion au serveur du client se fera après avoir exécuté la commande python3 client.py
+
+Technique : 
+Le jeu est développer entièrement en Python avec aucune librairie tiers. Pour cela nous n'utilisons pas SocketIO mais des socket avec le protocol TCP.
+Le client représente le joueur. Un thread est lancé pour chaque joueur ainsi qu'un pour la gestion du jeu et pour la connexion du client.
+
+Reste à faire : 
+- Régler le problème de répartition des taches sur les différents Threads
+- Déconnexion joueur
+- Nouvelle interface
+- Ajout sur le serveur polymnie  
+
+
+######################## Consignes ########################
 Spécifier votre application :
 Tout est à faire par vous !
 qui sont les clients ?

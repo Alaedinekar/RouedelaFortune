@@ -13,7 +13,7 @@ from time import sleep
 voyelle = ['a', 'e', 'i', 'o', 'u', 'y']
 consonne = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z']
 nbthread = 6  # nombre de thread
-job = [1,2,3,4,5]
+job = [1, 2, 3, 4, 5]
 queue = Queue()
 all_connections = []
 all_address = []
@@ -29,9 +29,10 @@ class Jeu():
         self.ValeurRoue = ''
         self.phraseCourante = ''
         self.phraseCachee = ''
-        self.themecourant=''
+        self.themecourant = ''
 
-        self.theme = ["Animaux", "Profit", "Gourmet", "litterature","litterature","difficulté","faune et flore","geographie"]
+        self.theme = ["Animaux", "Profit", "Gourmet", "litterature", "litterature", "difficulté", "faune et flore",
+                      "geographie"]
         self.expression = ["Donner sa langue au chat", "riche comme cresus",
                            "Avoir les yeux plus gros que le ventre",
                            "Horace",
@@ -188,29 +189,28 @@ def accepting_connections():
 
 
 def list_connections():
-
-
     for i in range(len(all_connections)):
         results = str(all_address[i]) + "   \n"
-        print("----Joueur numero " + str(i)+ "\n" + results)
+        print("----Joueur numero " + str(i) + "\n" + results)
 
 
 def startManche(i):
     c = game.premierLettre()
     game.updateCachee(c)
-    #msg = "Nous vous donnons une lettre " + str(c)
-    #sleep(3)
-    #i.send(bytes(msg, 'utf-8'))
-    #sleep(1)
+    # msg = "Nous vous donnons une lettre " + str(c)
+    # sleep(3)
+    # i.send(bytes(msg, 'utf-8'))
+    # sleep(1)
     i.send(bytes(game.phraseCachee, 'utf-8'))
     sleep(1)
 
 
-def debutmanche(cptManche,i):
+def debutmanche(cptManche, i):
     cptManche += 1
     sleep(4)
-    i.send(bytes("======================== \n \t" + str(cptManche) + " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
-    i.send(bytes("Le theme est : " + game.themecourant , "utf-8"))
+    i.send(bytes("======================== \n \t" + str(
+        cptManche) + " MANCHE\n======================== \n Voici le theme et la phrase a decouvrir :\n", "utf-8"))
+    i.send(bytes("Le theme est : " + game.themecourant, "utf-8"))
     sleep(1)
     i.send(bytes("\nLa phrase est : " + game.phraseCachee + "\n", "utf-8"))
     startManche(i)
@@ -227,9 +227,9 @@ def choix(cl):
     # with tlock:
     while (bon):
         roulette = game.ValeurRoue
-        #msg = "> La roue tourne... : " + roulette
-        #cl.send(bytes(msg, "utf-8"))
-        #sleep(1)
+        # msg = "> La roue tourne... : " + roulette
+        # cl.send(bytes(msg, "utf-8"))
+        # sleep(1)
         cl.send(bytes(roulette, "utf-8"))
         sleep(1)
         if (roulette != "banqueroute"):
@@ -239,7 +239,8 @@ def choix(cl):
             res = res.decode('utf-8')
             print(" Choix du client : " + res[0])
             nbapparitionlettre = game.updateCachee(res[0])
-            cl.send(bytes(str(nbapparitionlettre), "utf-8"))  ##on envoie le nb d'apparition , le client gagnera de l'argent
+            cl.send(
+                bytes(str(nbapparitionlettre), "utf-8"))  ##on envoie le nb d'apparition , le client gagnera de l'argent
             if (nbapparitionlettre != 0):
                 envoyerCache(cl)  # envoie la phrase maj
                 res = cl.recv(1024).decode("utf-8")
@@ -252,7 +253,7 @@ def choix(cl):
                         bon = 0
                 else:
                     print("Le joueur ne propose pas de phrase")
-                cl.send(bytes("choix","utf-8"))
+                cl.send(bytes("choix", "utf-8"))
             else:
                 cl.send(bytes("Fin de tour", "utf-8"))
                 print("0 lettre trouvée, fin du tour")
@@ -261,18 +262,13 @@ def choix(cl):
             cl.send(bytes("banqueroute", "utf-8"))  # on envoie banqueroute, cest le client qui gerera la perte d'argent
             print("Banqueroute")
             bon = 0
-        
 
-    cl.send(bytes("joueur suivant","utf-8"))
-
+    cl.send(bytes("joueur suivant", "utf-8"))
 
 
 def presentation(i):
-
-        res = i.recvfrom(1024)
-        i.send(bytes("Salut a toi l'ami " + str(res[0]), "utf-8"))
-
-
+    res = i.recvfrom(1024)
+    i.send(bytes("Salut a toi l'ami " + str(res[0]), "utf-8"))
 
 
 #####################################################
@@ -314,55 +310,52 @@ cptManche = 0
 #########################################################
 
 def foo():
-        while True:
-            res = input("")
-            if (res == "list"):
-                list_connections()
-
+    while True:
+        res = input("")
+        if (res == "list"):
+            list_connections()
 
 
 def foo2(lis):
     while True:
-       if(len(lis) != 0):
+        if (len(lis) != 0):
             for i in lis:
                 print(i)
             break
 
 
-
 def next_player():
-
     global joueur_courant
     with tlock:
 
         if joueur_courant == all_connections[0]:
-            joueur_courant= all_connections[1]
+            joueur_courant = all_connections[1]
             joueur_courant.send(bytes("a vous"))
             print("next")
         if joueur_courant == all_connections[1]:
-             joueur_courant = all_connections[2]
-             joueur_courant.send(bytes("a vous"))
+            joueur_courant = all_connections[2]
+            joueur_courant.send(bytes("a vous"))
         if joueur_courant == all_connections[2]:
-             joueur_courant = all_connections[0]
-             joueur_courant.send(bytes("a vous"))
+            joueur_courant = all_connections[0]
+            joueur_courant.send(bytes("a vous"))
+
 
 def envoieroue(cl):
-    cl.send(bytes(game.ValeurRoue,"utf-8"))
+    cl.send(bytes(game.ValeurRoue, "utf-8"))
 
 
-
-def work():   #les taches des threads
+def work():  # les taches des threads
     global res
-    global joueur_courant #data recu un tuple contenant la donnee et l'id du joueur
+    global joueur_courant  # data recu un tuple contenant la donnee et l'id du joueur
     global depart
 
     while True:
         x = queue.get()
         if x == 1:  ## thread qui gere les connections
 
-                create_socket()
-                bind_socket()
-                accepting_connections()
+            create_socket()
+            bind_socket()
+            accepting_connections()
 
         while (len(all_connections) != 3):
             print("\nen ecoute ...\n")
@@ -376,7 +369,7 @@ def work():   #les taches des threads
         joueur_courant = all_connections[0]  ##on zap l'etape de l'egnime rapide cest toujours le premier co le 1er
         depart = True
 
-        if x == 2:#en ecoute J1
+        if x == 2:  # en ecoute J1
             debutmanche(cptManche, all_connections[0])
             envoieroue(all_connections[0])
         if x == 3:
@@ -385,31 +378,13 @@ def work():   #les taches des threads
         if x == 4:
             debutmanche(cptManche, all_connections[2])
             envoieroue(all_connections[2])
-        if x== 5:
+        if x == 5:
             while True:
                 game.tournerLaRoue()
                 choix(joueur_courant)
                 print("------------Tour fini !!------------")
                 sleep(2)
                 next_player()
-
-            #res = (all_connections[0].recv(2048),0)
-
-        # if x == 3 : # boucle du jeu
-        #
-        #
-        #     sleep(0.5)
-        #     #presentation(joueur_courant)
-        #     if x==4:
-        #         print("4")
-        #         debutmanche(cptManche,all_connections[0])
-        #
-        #     if x == 5:
-        #         debutmanche(cptManche, all_connections[1])
-        #     if x == 6:
-        #         debutmanche(cptManche, all_connections[2])
-        #     while True:
-
 
 
 
