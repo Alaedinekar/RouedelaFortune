@@ -70,17 +70,20 @@ def debut():
     phrase2 = phrase2.decode('utf-8')
     print(phrase2 +": ") #Nous vous donner une lettre
 
-    phrase4 = s.recv(1024)
-    roueTourne = phrase4.decode('utf-8')
-    print("La phrase est : \033[95m" + str(roueTourne) +"\033[0m" ) #Affichage pharseCache
+    #phrase4 = s.recv(1024)
+    #roueTourne = phrase4.decode('utf-8')
+    #print("\033[95m" + str(roueTourne) +"\033[0m" ) 
 
     gain = s.recv(1024)
     gain = gain.decode('utf-8')
     print("\033[93m Vous obtenez " + gain + " ! \033[0m") #Gain de la roue
-    reponseClient('choix',gain)
+    if(gain!="banqueroute"):
+        reponseClient('choix',gain)
 
 
 def reponseClient(r,gain):
+    temp=j1.solde+int(gain)
+    print("Vous avez : "+str(temp))
     if (r == 'choix'):  ## si cest l'evenement choix alors....
         res = input("> Souhaitez vous acheter une voyelle :(oui/non) \n")
         if (res == 'oui'):
@@ -96,21 +99,23 @@ def reponseClient(r,gain):
         s.send(bytes(lettre, "utf-8"))
 
         nblett = s.recv(1024).decode("utf-8")
-        print(nblett)
         print("\nvous avez trouvé "+ str(nblett) + "lettres\n")
 
-        #j1.solde = j1.solde + (int(gain) * int(nblett))
+        j1.solde = j1.solde + (int(gain) * int(nblett))
         print("vous avez desormais " + str(j1.solde) +"€\n")
 
-        res3 = s.recvfrom(1024) #Affichage de phraseCachee
+        res3 = s.recv(1024).decode("utf-8") #Affichage de phraseCachee
         print(res3[0])
         
         ##verifier si la lettre est bonne , plus recevoir la phrase avec la lettre
-        final = input("> Souhaitez vous proposez une reponse ? oui/non \n")
-        if (final == 'oui'):
-            s.send(bytes("oui","utf-8"))
-            s.send(bytes(j1.proposerPhrase(), "utf-8"))
-            print(s.recvfrom(1024)[0])
+        if(int(nblett) > 0):    
+            final = input("> Souhaitez vous proposez une reponse ? oui/non \n")
+            if (final == 'oui'):
+                s.send(bytes("oui","utf-8"))
+                s.send(bytes(j1.proposerPhrase(), "utf-8"))
+                print(s.recvfrom(1024)[0])
+            else:
+                s.send(bytes("non","utf-8"))
 
 
 
@@ -129,11 +134,21 @@ s.connect((socket.gethostbyname(name), 9999))   # pour plus tard on proposera de
 nam = input("Quel est votre nom : ")
 s.send(bytes(nam,'utf-8'))
 
-bienvenu = s.recv(1024)
-bienvenu = bienvenu.decode('utf-8')
-print(bienvenu + "\n ")  # Salut a toi l'ami (Référence à MisterRobot)
 
 #for i in range(3):
 debut()
 
+running=True
 
+while running:
+
+    msg=s.recv(1024).decode('utf-8')
+    print(">"+msg)
+    if(str(msg)=="choix"):
+        value=s.recv(1024).decode('utf-8')
+        if(str(value)!="banqueroute"):
+            reponseClient("choix",value)
+        else:
+            print("Banqueroute !")
+    elif(str(msg)=="fin"):
+        running=False
