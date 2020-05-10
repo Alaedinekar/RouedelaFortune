@@ -230,6 +230,9 @@ def envoyerCache(cl):
     cl.send(bytes(game.phraseCachee, "utf-8"))
     sleep(0.3)
 
+#Choix de la lettre
+def choixLettre
+
 
 def choix(cl):
     bon = 1
