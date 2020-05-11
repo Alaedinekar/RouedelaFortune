@@ -42,9 +42,7 @@ class Joueur:
 
 
 def debut():
-    bienvenu = s.recv(1024)
-    bienvenu = bienvenu.decode('utf-8')
-    print(bienvenu + "\n ")  # Salut a toi l'ami (Référence à MisterRobot)
+
 
     them = s.recv(1024)
     them = them.decode('utf-8')
@@ -68,6 +66,7 @@ def debut():
 
     roue = s.recv(1024).decode('utf-8')
     print("la roue tombe sur " + roue)
+
     gain = s.recv(1024)
     gain = gain.decode('utf-8')
     print("\n Vous obtenez " + gain + " ! \n")  # Gain de la roue
@@ -96,7 +95,7 @@ def reponseClient(r, gain):
         s.send(bytes(lettre, "utf-8"))
 
         nblett = s.recv(1024).decode("utf-8")
-        print("\nvous avez trouvé " + str(nblett) + "lettres\n")
+        print("\nvous avez trouvé " + str(nblett) + " lettres\n")
 
         j1.solde = j1.solde + (int(gain) * int(nblett))
         print("vous avez desormais " + str(j1.solde) + "€\n")
@@ -133,7 +132,9 @@ debut()
 
 while True:
     running = True
+
     while running:
+
 
         msg = s.recv(1024).decode('utf-8')
         print(">" + msg)

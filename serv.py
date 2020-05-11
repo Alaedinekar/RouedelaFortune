@@ -211,9 +211,6 @@ def choix(cl):
     # with tlock:
     while (bon):
         roulette = game.ValeurRoue
-        # msg = "> La roue tourne... : " + roulette
-        # cl.send(bytes(msg, "utf-8"))
-        # sleep(1)
         cl.send(bytes(roulette, "utf-8"))
         sleep(1)
         if (roulette != "banqueroute"):
@@ -221,13 +218,12 @@ def choix(cl):
             print("Attente choix du client....")
             res = cl.recv(1024)
             res = res.decode('utf-8')
-            print(" Choix du client : " + res[0])
-            nbapparitionlettre = game.updateCachee(res[0])
-            cl.send(
-                bytes(str(nbapparitionlettre), "utf-8"))  ##on envoie le nb d'apparition , le client gagnera de l'argent
+            print(" Choix du client : " + res)
+            nbapparitionlettre = game.updateCachee(str(res))
+            cl.send(bytes(str(nbapparitionlettre), "utf-8"))  ##on envoie le nb d'apparition , le client gagnera de l'argent
             if (nbapparitionlettre != 0):
                 envoyerCache(cl)  # envoie la phrase maj
-                res = cl.recv(1024).decode("utf-8")
+                res = cl.recv(1024).decode("utf-8")#sil souhaite donner une phrase
                 if (res == "oui"):
                     res = cl.recv(1024).decode("utf-8")
                     if (game.checkPhrase(res)):
@@ -235,6 +231,7 @@ def choix(cl):
                     else:
                         cl.send(bytes("perdu", "utf-8"))
                         bon = 0
+                        next_player()
                 else:
                     print("Le joueur ne propose pas de phrase")
                 cl.send(bytes("choix", "utf-8"))
@@ -307,18 +304,18 @@ def foo2(lis):
 
 def next_player():
     global joueur_courant
-    with tlock:
 
-        if joueur_courant == all_connections[0]:
-            joueur_courant = all_connections[1]
-            joueur_courant.send(bytes("a vous"))
-            print("next")
-        if joueur_courant == all_connections[1]:
-            joueur_courant = all_connections[2]
-            joueur_courant.send(bytes("a vous"))
-        if joueur_courant == all_connections[2]:
-            joueur_courant = all_connections[0]
-            joueur_courant.send(bytes("a vous"))
+
+    if joueur_courant == all_connections[0]:
+        joueur_courant = all_connections[1]
+        joueur_courant.send(bytes("choix"))
+        print("next")
+    if joueur_courant == all_connections[1]:
+        joueur_courant = all_connections[2]
+        joueur_courant.send(bytes("choix"))
+    if joueur_courant == all_connections[2]:
+        joueur_courant = all_connections[0]
+        joueur_courant.send(bytes("choix"))
 
 
 def envoieroue(cl):
